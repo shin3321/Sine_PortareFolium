@@ -140,6 +140,8 @@ export default function ResumePanel() {
     const [editingEducation, setEditingEducation] = useState<number | null>(
         null
     );
+    const [editingSkill, setEditingSkill] = useState<number | null>(null);
+    const [editingLanguage, setEditingLanguage] = useState<number | null>(null);
     const [backupData, setBackupData] = useState<any>(null);
 
     // Fallback JSON input state
@@ -961,6 +963,81 @@ export default function ResumePanel() {
                                             }}
                                         />
                                     </div>
+                                    {/* GPA 입력 */}
+                                    <div className="flex items-end gap-3">
+                                        <div className="flex flex-col space-y-1">
+                                            <label className="text-sm font-medium text-(--color-muted)">
+                                                Max GPA
+                                            </label>
+                                            <select
+                                                value={ed.gpaMax ?? 4.5}
+                                                onChange={(ev) => {
+                                                    const newMax = parseFloat(
+                                                        ev.target.value
+                                                    ) as 4 | 4.5;
+                                                    const e = [
+                                                        ...resumeData.education!,
+                                                    ];
+                                                    // 기존 gpa 비례 환산
+                                                    if (e[idx].gpa != null) {
+                                                        const oldMax =
+                                                            e[idx].gpaMax ??
+                                                            4.5;
+                                                        e[idx].gpa =
+                                                            Math.round(
+                                                                (e[idx].gpa! /
+                                                                    oldMax) *
+                                                                    newMax *
+                                                                    100
+                                                            ) / 100;
+                                                    }
+                                                    e[idx].gpaMax = newMax;
+                                                    setResumeData({
+                                                        ...resumeData,
+                                                        education: e,
+                                                    });
+                                                }}
+                                                className="rounded-lg border border-(--color-border) bg-transparent px-3 py-2 text-sm text-(--color-foreground) focus:border-(--color-accent) focus:outline-none"
+                                            >
+                                                <option value={4.5}>4.5</option>
+                                                <option value={4}>4.0</option>
+                                            </select>
+                                        </div>
+                                        <div className="flex flex-col space-y-1">
+                                            <label className="text-sm font-medium text-(--color-muted)">
+                                                GPA
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min={0}
+                                                max={ed.gpaMax ?? 4.5}
+                                                step={0.01}
+                                                value={ed.gpa ?? ""}
+                                                onChange={(ev) => {
+                                                    const raw = parseFloat(
+                                                        ev.target.value
+                                                    );
+                                                    const max =
+                                                        ed.gpaMax ?? 4.5;
+                                                    const e = [
+                                                        ...resumeData.education!,
+                                                    ];
+                                                    e[idx].gpa = isNaN(raw)
+                                                        ? undefined
+                                                        : Math.min(
+                                                              max,
+                                                              Math.max(0, raw)
+                                                          );
+                                                    setResumeData({
+                                                        ...resumeData,
+                                                        education: e,
+                                                    });
+                                                }}
+                                                placeholder="예: 4.2"
+                                                className="w-28 rounded-lg border border-(--color-border) bg-transparent px-3 py-2 text-sm text-(--color-foreground) placeholder-(--color-muted) focus:border-(--color-accent) focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
                                     <div className="flex justify-end gap-2 pt-2">
                                         <button
                                             onClick={() => {
@@ -1031,7 +1108,308 @@ export default function ResumePanel() {
                 </div>
             </section>
 
-            {/* 기타 지원/스킬 및 JSON 백업 */}
+            {/* 스킬 (Skills) */}
+            <section className="space-y-4 rounded-xl border border-(--color-border) bg-(--color-surface) p-6">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-(--color-foreground)">
+                        스킬 (Skills)
+                    </h3>
+                    <button
+                        onClick={() => {
+                            setBackupData(resumeData);
+                            const newSkill: ResumeSkill = {
+                                name: "",
+                                level: "",
+                                keywords: [],
+                            };
+                            setResumeData({
+                                ...resumeData,
+                                skills: [
+                                    newSkill,
+                                    ...(resumeData.skills || []),
+                                ],
+                            });
+                            setEditingSkill(0);
+                        }}
+                        className="rounded-lg bg-(--color-accent) px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
+                    >
+                        + 스킬 추가
+                    </button>
+                </div>
+                <div className="space-y-4">
+                    {resumeData.skills?.map((skill, idx) => (
+                        <div
+                            key={idx}
+                            className="rounded-lg border border-(--color-border) bg-transparent p-4"
+                        >
+                            {editingSkill === idx ? (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <InputField
+                                            label="카테고리명"
+                                            value={skill.name || ""}
+                                            onChange={(v) => {
+                                                const s = [
+                                                    ...resumeData.skills!,
+                                                ];
+                                                s[idx].name = v;
+                                                setResumeData({
+                                                    ...resumeData,
+                                                    skills: s,
+                                                });
+                                            }}
+                                        />
+                                        <InputField
+                                            label="숙련도 (Level)"
+                                            value={skill.level || ""}
+                                            onChange={(v) => {
+                                                const s = [
+                                                    ...resumeData.skills!,
+                                                ];
+                                                s[idx].level = v;
+                                                setResumeData({
+                                                    ...resumeData,
+                                                    skills: s,
+                                                });
+                                            }}
+                                            placeholder="예: Master, Advanced"
+                                        />
+                                    </div>
+                                    <TextAreaField
+                                        label="키워드 (쉼표로 구분)"
+                                        value={skill.keywords?.join(", ") || ""}
+                                        onChange={(v) => {
+                                            const s = [...resumeData.skills!];
+                                            s[idx].keywords = v
+                                                .split(",")
+                                                .map((k) => k.trim())
+                                                .filter(Boolean);
+                                            setResumeData({
+                                                ...resumeData,
+                                                skills: s,
+                                            });
+                                        }}
+                                        rows={2}
+                                        placeholder="예: React, TypeScript, Node.js"
+                                    />
+                                    <div className="flex justify-end gap-2 pt-2">
+                                        <button
+                                            onClick={() => {
+                                                if (backupData)
+                                                    setResumeData(backupData);
+                                                setEditingSkill(null);
+                                            }}
+                                            className="rounded-lg border border-(--color-border) px-4 py-1.5 text-sm font-medium text-(--color-muted) hover:text-(--color-foreground)"
+                                        >
+                                            취소
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setBackupData(null);
+                                                setEditingSkill(null);
+                                            }}
+                                            className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
+                                        >
+                                            완료
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-start justify-between">
+                                    <div className="mr-12">
+                                        <h4 className="font-semibold text-(--color-foreground)">
+                                            {skill.name}
+                                            {skill.level && (
+                                                <span className="ml-2 text-sm font-normal text-(--color-muted)">
+                                                    {skill.level}
+                                                </span>
+                                            )}
+                                        </h4>
+                                        <div className="mt-1 flex flex-wrap gap-1">
+                                            {skill.keywords?.map((kw) => (
+                                                <span
+                                                    key={kw}
+                                                    className="rounded bg-(--color-border) px-1.5 py-0.5 text-xs text-(--color-muted)"
+                                                >
+                                                    {kw}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setBackupData(resumeData);
+                                                setEditingSkill(idx);
+                                            }}
+                                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                                        >
+                                            수정
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (
+                                                    confirm("삭제하시겠습니까?")
+                                                ) {
+                                                    const s = [
+                                                        ...resumeData.skills!,
+                                                    ];
+                                                    s.splice(idx, 1);
+                                                    setResumeData({
+                                                        ...resumeData,
+                                                        skills: s,
+                                                    });
+                                                }
+                                            }}
+                                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                                        >
+                                            삭제
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* 언어 (Languages) */}
+            <section className="space-y-4 rounded-xl border border-(--color-border) bg-(--color-surface) p-6">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-(--color-foreground)">
+                        언어 (Languages)
+                    </h3>
+                    <button
+                        onClick={() => {
+                            setBackupData(resumeData);
+                            const newLang: ResumeLanguage = {
+                                language: "",
+                                fluency: "",
+                            };
+                            setResumeData({
+                                ...resumeData,
+                                languages: [
+                                    newLang,
+                                    ...(resumeData.languages || []),
+                                ],
+                            });
+                            setEditingLanguage(0);
+                        }}
+                        className="rounded-lg bg-(--color-accent) px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
+                    >
+                        + 언어 추가
+                    </button>
+                </div>
+                <div className="space-y-4">
+                    {resumeData.languages?.map((lang, idx) => (
+                        <div
+                            key={idx}
+                            className="rounded-lg border border-(--color-border) bg-transparent p-4"
+                        >
+                            {editingLanguage === idx ? (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <InputField
+                                            label="언어"
+                                            value={lang.language || ""}
+                                            onChange={(v) => {
+                                                const l = [
+                                                    ...resumeData.languages!,
+                                                ];
+                                                l[idx].language = v;
+                                                setResumeData({
+                                                    ...resumeData,
+                                                    languages: l,
+                                                });
+                                            }}
+                                            placeholder="예: Korean, English"
+                                        />
+                                        <InputField
+                                            label="능숙도 (Fluency)"
+                                            value={lang.fluency || ""}
+                                            onChange={(v) => {
+                                                const l = [
+                                                    ...resumeData.languages!,
+                                                ];
+                                                l[idx].fluency = v;
+                                                setResumeData({
+                                                    ...resumeData,
+                                                    languages: l,
+                                                });
+                                            }}
+                                            placeholder="예: Native, Fluent, Intermediate"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2 pt-2">
+                                        <button
+                                            onClick={() => {
+                                                if (backupData)
+                                                    setResumeData(backupData);
+                                                setEditingLanguage(null);
+                                            }}
+                                            className="rounded-lg border border-(--color-border) px-4 py-1.5 text-sm font-medium text-(--color-muted) hover:text-(--color-foreground)"
+                                        >
+                                            취소
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setBackupData(null);
+                                                setEditingLanguage(null);
+                                            }}
+                                            className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
+                                        >
+                                            완료
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h4 className="font-semibold text-(--color-foreground)">
+                                            {lang.language}
+                                        </h4>
+                                        <p className="text-sm text-(--color-muted)">
+                                            {lang.fluency}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setBackupData(resumeData);
+                                                setEditingLanguage(idx);
+                                            }}
+                                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                                        >
+                                            수정
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (
+                                                    confirm("삭제하시겠습니까?")
+                                                ) {
+                                                    const l = [
+                                                        ...resumeData.languages!,
+                                                    ];
+                                                    l.splice(idx, 1);
+                                                    setResumeData({
+                                                        ...resumeData,
+                                                        languages: l,
+                                                    });
+                                                }
+                                            }}
+                                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                                        >
+                                            삭제
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* 데이터 고급 편집 (JSONFallback) */}
             <section className="space-y-3">
                 <div className="flex items-center justify-between">
                     <div>
@@ -1071,6 +1449,16 @@ export default function ResumePanel() {
                     spellCheck={false}
                 />
             </section>
+
+            <div className="flex justify-end border-t border-(--color-border) pt-6">
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="rounded-lg bg-(--color-accent) px-6 py-2.5 text-base font-semibold text-(--color-on-accent) transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                    {saving ? "저장 중..." : "변경사항 저장"}
+                </button>
+            </div>
         </div>
     );
 }

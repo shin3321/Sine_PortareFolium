@@ -63,6 +63,8 @@ export interface ResumeEducation {
     startDate?: string;
     endDate?: string;
     score?: string;
+    gpa?: number;
+    gpaMax?: 4 | 4.5;
     courses?: string[];
 }
 
