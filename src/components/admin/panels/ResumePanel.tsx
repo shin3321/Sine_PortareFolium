@@ -316,7 +316,7 @@ export default function ResumePanel() {
                             });
                             setEditingWork(0);
                         }}
-                        className="text-sm font-semibold text-(--color-accent) hover:underline"
+                        className="rounded-lg bg-(--color-accent) px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                     >
                         + 경력 추가
                     </button>
@@ -423,7 +423,7 @@ export default function ResumePanel() {
                                                 setBackupData(null);
                                                 setEditingWork(null);
                                             }}
-                                            className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:opacity-90"
+                                            className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                                         >
                                             완료
                                         </button>
@@ -446,7 +446,7 @@ export default function ResumePanel() {
                                                 setBackupData(resumeData);
                                                 setEditingWork(idx);
                                             }}
-                                            className="text-sm text-(--color-accent) hover:underline"
+                                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
                                         >
                                             수정
                                         </button>
@@ -465,7 +465,7 @@ export default function ResumePanel() {
                                                     });
                                                 }
                                             }}
-                                            className="text-sm text-red-500 hover:underline"
+                                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
                                         >
                                             삭제
                                         </button>
@@ -498,7 +498,7 @@ export default function ResumePanel() {
                             });
                             setEditingProject(0);
                         }}
-                        className="text-sm font-semibold text-(--color-accent) hover:underline"
+                        className="rounded-lg bg-(--color-accent) px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                     >
                         + 프로젝트 추가
                     </button>
@@ -604,7 +604,7 @@ export default function ResumePanel() {
                                             onClick={() =>
                                                 setEditingProject(null)
                                             }
-                                            className="rounded-lg border border-(--color-border) px-4 py-1.5 text-sm font-medium hover:bg-(--color-surface-subtle)"
+                                            className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                                         >
                                             완료
                                         </button>
@@ -632,7 +632,7 @@ export default function ResumePanel() {
                                             onClick={() =>
                                                 setEditingProject(idx)
                                             }
-                                            className="text-sm text-(--color-accent) hover:underline"
+                                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
                                         >
                                             수정
                                         </button>
@@ -651,7 +651,7 @@ export default function ResumePanel() {
                                                     });
                                                 }
                                             }}
-                                            className="text-sm text-red-500 hover:underline"
+                                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
                                         >
                                             삭제
                                         </button>
@@ -685,7 +685,7 @@ export default function ResumePanel() {
                             });
                             setEditingEducation(0);
                         }}
-                        className="text-sm font-semibold text-(--color-accent) hover:underline"
+                        className="rounded-lg bg-(--color-accent) px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                     >
                         + 학력 추가
                     </button>
@@ -776,7 +776,7 @@ export default function ResumePanel() {
                                             onClick={() =>
                                                 setEditingEducation(null)
                                             }
-                                            className="rounded-lg border border-(--color-border) px-4 py-1.5 text-sm font-medium hover:bg-(--color-surface-subtle)"
+                                            className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                                         >
                                             완료
                                         </button>
@@ -798,7 +798,7 @@ export default function ResumePanel() {
                                             onClick={() =>
                                                 setEditingEducation(idx)
                                             }
-                                            className="text-sm text-(--color-accent) hover:underline"
+                                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
                                         >
                                             수정
                                         </button>
@@ -817,7 +817,7 @@ export default function ResumePanel() {
                                                     });
                                                 }
                                             }}
-                                            className="text-sm text-red-500 hover:underline"
+                                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
                                         >
                                             삭제
                                         </button>
@@ -857,7 +857,7 @@ export default function ResumePanel() {
                                 });
                             }
                         }}
-                        className="rounded-lg border border-(--color-border) px-4 py-1.5 text-sm font-medium hover:bg-(--color-surface-subtle)"
+                        className="rounded-lg bg-(--color-accent) px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-(--color-on-accent) transition-opacity hover:opacity-90"
                     >
                         JSON 적용
                     </button>
