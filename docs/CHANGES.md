@@ -2,6 +2,10 @@
 
 ## 2026-03-23
 
+### Feat: 프롬프트 라이브러리 포트폴리오 프롬프트 추가 (v0.7.21)
+
+- `src/components/admin/panels/PromptLibraryPanel.tsx`: `GET_PORTFOLIO_PROMPT` 함수 추가. 포트폴리오 아이템 생성용 시스템 프롬프트 섹션(상태·핸들러·UI) 추가
+
 ### Feat: MCP 엔드포인트 개선 (v0.7.20)
 
 - `src/lib/mcp-tools.ts`: `handleCreatePortfolioItem`, `handleUpdatePortfolioItem`에 `job_field` 배열 → 문자열 자동 정규화 추가
