@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { evaluate } from "@mdx-js/mdx";
 import * as runtime from "react/jsx-runtime";
 import rehypeShiki from "@shikijs/rehype";
@@ -218,6 +219,17 @@ function escapeStrayCurlyBraces(chunk: string): string {
                 .replace(/(?<!\})\}(?!\})/g, "\\}");
         })
         .join("\n");
+}
+
+// slug + content를 key로 MDX 렌더링 결과 캐싱 (revalidate 시에만 재실행)
+export function getCachedMarkdown(
+    slug: string,
+    content: string
+): Promise<string> {
+    return unstable_cache(() => renderMarkdown(content), [`mdx-html-${slug}`], {
+        revalidate: 3600,
+        tags: [`post-${slug}`],
+    })();
 }
 
 export async function renderMarkdown(content: string): Promise<string> {

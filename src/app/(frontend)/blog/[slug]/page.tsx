@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getPost, getTags, getSiteConfig } from "@/lib/queries";
 import { formatPubDateKST } from "@/lib/blog";
-import { renderMarkdown } from "@/lib/markdown";
+import { getCachedMarkdown } from "@/lib/markdown";
 import { extractTocFromHtml } from "@/lib/toc";
 import TableOfContents from "@/components/TableOfContents";
 import GithubToc from "@/components/GithubToc";
@@ -49,7 +49,7 @@ export default async function BlogPostPage({
             .map((t) => [t.slug, t.color!.trim()])
     );
 
-    const contentHtml = await renderMarkdown(post.content ?? "");
+    const contentHtml = await getCachedMarkdown(slug, post.content ?? "");
     const tocEntries = extractTocFromHtml(contentHtml);
 
     type TocStyle = "hover" | "github" | "both";

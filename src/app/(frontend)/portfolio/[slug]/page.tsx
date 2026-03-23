@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getPortfolioItem } from "@/lib/queries";
 import type { PortfolioProject } from "@/types/portfolio";
-import { renderMarkdown } from "@/lib/markdown";
+import { getCachedMarkdown } from "@/lib/markdown";
 import { extractTocFromHtml } from "@/lib/toc";
 import TableOfContents from "@/components/TableOfContents";
 import MermaidRenderer from "@/components/MermaidRenderer";
@@ -58,7 +58,7 @@ export default async function PortfolioDetailPage({
         badges: d.badges,
     };
 
-    const contentHtml = await renderMarkdown(item.content ?? "");
+    const contentHtml = await getCachedMarkdown(slug, item.content ?? "");
     const tocEntries = extractTocFromHtml(contentHtml);
 
     return (
