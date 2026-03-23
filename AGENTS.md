@@ -150,7 +150,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Project Structure
 
-**Project:** `portare-folium` — Next.js 16 App Router 기반 개인 포트폴리오 사이트 (v0.7.32)
+**Project:** `portare-folium` — Next.js 16 App Router 기반 개인 포트폴리오 사이트 (v0.7.36)
 
 **Stack:**
 
@@ -188,6 +188,7 @@ src/
 │   │   ├── login/page.tsx
 │   │   └── actions/                    # Server Actions
 │   │       ├── agent-tokens.ts         # Agent token CRUD
+│   │       ├── revalidate.ts           # On-Demand revalidation (revalidatePost, revalidatePortfolioItem)
 │   │       └── snapshots.ts            # DB 스냅샷 관리
 │   └── api/
 │       ├── mcp/route.ts                # MCP 서버 엔드포인트

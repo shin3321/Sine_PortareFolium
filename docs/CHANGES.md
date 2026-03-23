@@ -1,5 +1,17 @@
 # CHANGES
 
+## 2026-03-24
+
+### Perf: generateStaticParams + On-Demand revalidation — 첫 방문 속도 개선 (v0.7.34~v0.7.36)
+
+- `src/lib/queries.ts`: `getPostMeta`, `getPortfolioItemMeta` 추가 (content 제외 경량 메타데이터 쿼리). `getAllPostSlugs`, `getAllPortfolioSlugs` 추가 (빌드 타임 전용).
+- `src/app/admin/actions/revalidate.ts` (신규): `revalidatePost`, `revalidatePortfolioItem` Server Action. 저장 시 slug 페이지 + 목록 페이지 동시 `revalidatePath` 호출.
+- `src/lib/markdown.tsx`: `unstable_cache` `revalidate: false` — 시간 기반 만료 제거, On-Demand revalidation 전용.
+- `src/app/(frontend)/blog/[slug]/page.tsx`, `portfolio/[slug]/page.tsx`: `generateStaticParams` 추가, `revalidate = false`, `dynamicParams = true`. `generateMetadata`를 경량 쿼리로 교체. 배포 시 모든 published 페이지가 빌드 타임에 정적 HTML 생성 → CDN 즉시 서빙.
+- `src/app/(frontend)/blog/page.tsx`, `portfolio/page.tsx`: `force-dynamic` 제거, `revalidate = false`.
+- `src/components/admin/panels/PostsPanel.tsx`, `PortfolioPanel.tsx`: `autoSave`, `handleSave`, `togglePublish`, `handlePublishToggle` 모든 저장 지점에서 revalidation Server Action 호출.
+- `src/lib/mcp-tools.ts`: `handleUpdatePost`, `handleUpdatePortfolioItem`에 `revalidatePath` 추가 — AI 에이전트 경로도 커버.
+
 ## 2026-03-23
 
 ### Fix: unstable_cache 모듈 레벨 이동 — content가 cache key에 포함되도록 수정 (v0.7.32)
