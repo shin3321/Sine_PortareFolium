@@ -14,7 +14,7 @@ interface BookItem {
     rating: number | null;
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = false;
 
 export const metadata: Metadata = {
     title: "Portfolio",

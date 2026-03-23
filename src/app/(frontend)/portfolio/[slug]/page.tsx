@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
-import { getPortfolioItem } from "@/lib/queries";
+import {
+    getPortfolioItem,
+    getPortfolioItemMeta,
+    getAllPortfolioSlugs,
+} from "@/lib/queries";
 import type { PortfolioProject } from "@/types/portfolio";
 import { getCachedMarkdown } from "@/lib/markdown";
 import { extractTocFromHtml } from "@/lib/toc";
@@ -10,7 +14,12 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const revalidate = false;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+    return getAllPortfolioSlugs();
+}
 
 export async function generateMetadata({
     params,
@@ -18,7 +27,7 @@ export async function generateMetadata({
     params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
     const { slug } = await params;
-    const item = await getPortfolioItem(slug);
+    const item = await getPortfolioItemMeta(slug);
     if (!item) return {};
     return {
         title: item.meta_title || `${item.title} - Portfolio`,

@@ -1,5 +1,11 @@
 import { redirect } from "next/navigation";
-import { getPost, getTags, getSiteConfig } from "@/lib/queries";
+import {
+    getPost,
+    getPostMeta,
+    getTags,
+    getSiteConfig,
+    getAllPostSlugs,
+} from "@/lib/queries";
 import { formatPubDateKST } from "@/lib/blog";
 import { getCachedMarkdown } from "@/lib/markdown";
 import { extractTocFromHtml } from "@/lib/toc";
@@ -11,7 +17,12 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const revalidate = false;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+    return getAllPostSlugs();
+}
 
 export async function generateMetadata({
     params,
@@ -19,7 +30,7 @@ export async function generateMetadata({
     params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
     const { slug } = await params;
-    const post = await getPost(slug);
+    const post = await getPostMeta(slug);
     if (!post) return {};
     const category = post.category?.trim() ?? "";
     const title =
