@@ -70,7 +70,7 @@ export default function TableOfContents({
 
     return (
         <nav
-            className={`desktop:block sticky top-24 hidden max-h-[calc(100vh-8rem)] w-52 shrink-0 self-start overflow-y-auto overscroll-contain ${className}`}
+            className={`laptop:block sticky top-24 hidden max-h-[calc(100vh-8rem)] w-52 shrink-0 self-start overflow-y-auto overscroll-contain ${className}`}
             aria-label="목차"
         >
             <p className="mb-4 text-xs font-bold tracking-[0.15em] text-(--color-muted) uppercase">

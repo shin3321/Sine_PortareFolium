@@ -248,9 +248,9 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
             {/* Career Phase — 수평 2컬럼 (좌: 웹 경력, 우: 게임 프로젝트) */}
             {hasWebWork || hasGameProjects ? (
                 <section className="mb-10">
-                    <div className="grid grid-cols-[2fr_3fr] divide-x divide-(--color-border)">
+                    <div className="tablet:grid-cols-2 tablet:divide-x tablet:divide-y-0 grid grid-cols-1 divide-y divide-(--color-border)">
                         {/* 좌측: 웹 경력 */}
-                        <div className="pr-8">
+                        <div className="tablet:pb-0 tablet:pr-8 pb-8">
                             <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
                                 경력
                             </h2>
@@ -363,7 +363,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                         </div>
 
                         {/* 우측: 게임 프로젝트 */}
-                        <div className="pl-8">
+                        <div className="tablet:pt-0 tablet:pl-8 pt-8">
                             <h2 className="mb-5 flex items-center gap-3 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
                                 프로젝트
                                 <span className="rounded-full bg-(--color-accent) px-3 py-0.5 text-xs font-bold tracking-widest text-(--color-on-accent) normal-case">

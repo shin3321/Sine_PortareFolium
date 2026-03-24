@@ -2,6 +2,22 @@
 
 ## 2026-03-24
 
+### Fix: desktop 브레이크포인트 1600px 정정 및 TOC laptop 전환 (v0.7.43)
+
+- `src/styles/global.css`: `--breakpoint-desktop` 64rem(1024px) → 100rem(1600px) — laptop(1241px)보다 커야 하는 논리적 순서 수정. 참조 프로젝트 기준값 반영.
+- `src/components/TableOfContents.tsx`: `desktop:block` → `laptop:block` — desktop이 1600px로 상향되면서 TOC가 지나치게 넓은 화면에서만 표시되는 문제 수정. 1241px 이상에서 표시 (이전 1024px 동작과 유사).
+
+### Fix: laptop 브레이크포인트 추가 및 ResumePhases 반응형 수정 (v0.7.42)
+
+- `src/styles/global.css`: `@theme`에 `--breakpoint-laptop: 77.5625rem` (1241px) 추가 — 참조 프로젝트(krrpinfo) 브레이크포인트 체계 반영.
+- `src/components/resume/ResumePhases.tsx`: 경력·프로젝트 반응형 클래스의 `md:` → `tablet:` 교체 — `--breakpoint-*: initial`로 기본 브레이크포인트가 reset된 환경에서 `md:`가 무효였던 버그 수정.
+
+### Fix: ResumePhases 경력·프로젝트 섹션 좁은 화면 반응형 레이아웃 (v0.7.41)
+
+- `src/components/resume/ResumePhases.tsx`: `경력`·`프로젝트` 2컬럼 그리드를 `md` 미만에서 단일 컬럼 수직 스택으로 전환. `divide-x` → `md:divide-x` + `divide-y md:divide-y-0` 구분선 처리. 컬럼 패딩 `pr-8`/`pl-8` → `pb-8 md:pb-0 md:pr-8` / `pt-8 md:pt-0 md:pl-8` 조정. 커리어 로드맵 레이아웃은 변경 없음.
+
+## 2026-03-24
+
 ### Perf: 홈·이력서 정적 생성 및 전 패널 On-Demand 재검증 확장 (v0.7.40)
 
 - `src/app/(frontend)/page.tsx`, `resume/page.tsx`: `force-dynamic` → `revalidate = false`. 빌드 타임 정적 HTML 생성 — 첫 방문자도 CDN 즉시 서빙.
