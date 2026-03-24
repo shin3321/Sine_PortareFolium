@@ -1,6 +1,7 @@
-import type { Resume, ResumeSkillKeyword } from "@/types/resume";
+import type { Resume } from "@/types/resume";
 import { renderMarkdown } from "@/lib/markdown";
-import { SkillBadge, getSimpleIcon } from "@/components/resume/SkillBadge";
+import SkillsSection from "@/components/resume/SkillsSection";
+import { getPortfolioItem } from "@/lib/queries";
 
 interface Props {
     resume: Resume;
@@ -90,6 +91,18 @@ export default async function ResumeModern({ resume }: Props) {
             );
         })
     );
+
+    // Fetch portfolio data for projects that have a portfolioSlug
+    const portfolioSlugs = (resume.projects?.entries || [])
+        .map((p) => p.portfolioSlug)
+        .filter((s): s is string => Boolean(s));
+    const portfolioItemsArr = await Promise.all(
+        portfolioSlugs.map((slug) => getPortfolioItem(slug))
+    );
+    const portfolioItemMap: Record<string, (typeof portfolioItemsArr)[number]> =
+        Object.fromEntries(
+            portfolioSlugs.map((slug, i) => [slug, portfolioItemsArr[i]])
+        );
 
     return (
         <div className="mx-auto max-w-[760px] text-[0.9375rem] leading-[1.6] text-(--color-foreground)">
@@ -341,124 +354,254 @@ export default async function ResumeModern({ resume }: Props) {
                                 </h2>
                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
                                     {sectionValue.map(
-                                        (project, pIdx: number) => (
-                                            <div
-                                                key={pIdx}
-                                                className="rounded-lg border border-(--color-border) bg-(--color-surface-subtle) p-4"
-                                            >
-                                                {project.name ? (
-                                                    <h3 className="m-0 mb-1 text-lg font-bold text-(--color-foreground)">
-                                                        {project.url ? (
-                                                            <a
-                                                                href={
-                                                                    project.url
+                                        (project, pIdx: number) => {
+                                            const pf = project.portfolioSlug
+                                                ? portfolioItemMap[
+                                                      project.portfolioSlug
+                                                  ]
+                                                : null;
+                                            const pfData = pf?.data as
+                                                | {
+                                                      role?: string;
+                                                      teamSize?:
+                                                          | string
+                                                          | number;
+                                                      github?: string;
+                                                  }
+                                                | undefined;
+                                            const pfTags = pf?.tags as
+                                                | string[]
+                                                | undefined;
+                                            return (
+                                                <div
+                                                    key={pIdx}
+                                                    className="group relative overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface-subtle) transition-colors hover:border-(--color-accent)"
+                                                >
+                                                    {project.portfolioSlug ? (
+                                                        <a
+                                                            href={`/portfolio/${project.portfolioSlug}`}
+                                                            className="absolute inset-0 z-0"
+                                                            aria-label={
+                                                                project.name ??
+                                                                ""
+                                                            }
+                                                        />
+                                                    ) : null}
+                                                    {/* Thumbnail */}
+                                                    {pf?.thumbnail ? (
+                                                        <div className="relative aspect-video w-full overflow-hidden bg-(--color-border)">
+                                                            <img
+                                                                src={
+                                                                    pf.thumbnail as string
                                                                 }
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-(--color-link) no-underline hover:opacity-80"
-                                                            >
-                                                                {project.name}
-                                                            </a>
-                                                        ) : (
-                                                            project.name
-                                                        )}
-                                                    </h3>
-                                                ) : null}
-                                                {(project.startDate ||
-                                                    project.endDate) && (
-                                                    <div
-                                                        className="mb-2 text-sm text-(--color-muted)"
-                                                        style={{
-                                                            fontVariantNumeric:
-                                                                "tabular-nums",
-                                                        }}
-                                                    >
-                                                        {formatDateRange(
-                                                            project.startDate,
-                                                            project.endDate,
-                                                            project.hideDays
-                                                        )}
-                                                    </div>
-                                                )}
-                                                {project.sections &&
-                                                project.sections.length > 0 ? (
-                                                    project.sections.map(
-                                                        (
-                                                            sec: {
-                                                                title: string;
-                                                                content: string;
-                                                                markdown?: boolean;
-                                                            },
-                                                            sIdx: number
-                                                        ) => (
-                                                            <div
-                                                                key={sIdx}
-                                                                className="mt-2"
-                                                            >
-                                                                {sec.title ? (
-                                                                    <p className="m-0 mb-0.5 text-base font-semibold tracking-wider text-(--color-muted) uppercase">
+                                                                alt={
+                                                                    project.name ??
+                                                                    ""
+                                                                }
+                                                                className="h-full w-full object-cover"
+                                                                loading="lazy"
+                                                            />
+                                                        </div>
+                                                    ) : null}
+                                                    <div className="p-4">
+                                                        {/* Name */}
+                                                        {project.name ? (
+                                                            <h3 className="relative z-10 m-0 mb-1.5 text-base leading-snug font-bold text-(--color-foreground) transition-colors group-hover:text-(--color-accent)">
+                                                                {project.url ? (
+                                                                    <a
+                                                                        href={
+                                                                            project.url
+                                                                        }
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-(--color-link) no-underline hover:opacity-80"
+                                                                    >
                                                                         {
-                                                                            sec.title
+                                                                            project.name
+                                                                        }
+                                                                    </a>
+                                                                ) : (
+                                                                    project.name
+                                                                )}
+                                                            </h3>
+                                                        ) : null}
+                                                        {/* Tags from portfolio */}
+                                                        {pfTags &&
+                                                        pfTags.length > 0 ? (
+                                                            <div className="relative z-10 mb-2 flex flex-wrap gap-1">
+                                                                {pfTags
+                                                                    .slice(0, 5)
+                                                                    .map(
+                                                                        (
+                                                                            tag,
+                                                                            tIdx
+                                                                        ) => (
+                                                                            <span
+                                                                                key={
+                                                                                    tIdx
+                                                                                }
+                                                                                className="inline-block rounded bg-(--color-tag-bg) px-[0.45em] py-[0.1em] text-xs leading-normal font-medium text-(--color-tag-fg)"
+                                                                            >
+                                                                                {
+                                                                                    tag
+                                                                                }
+                                                                            </span>
+                                                                        )
+                                                                    )}
+                                                            </div>
+                                                        ) : null}
+                                                        {pfData?.github ? (
+                                                            <div className="relative z-10 mb-2">
+                                                                <a
+                                                                    href={
+                                                                        pfData.github
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="inline-flex items-center gap-1 rounded-full border border-(--color-border) px-2.5 py-0.5 text-xs font-medium text-(--color-foreground) transition-colors hover:border-(--color-accent) hover:text-(--color-accent)"
+                                                                >
+                                                                    GitHub
+                                                                    <svg
+                                                                        className="h-3 w-3"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={
+                                                                                2
+                                                                            }
+                                                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                                        />
+                                                                    </svg>
+                                                                </a>
+                                                            </div>
+                                                        ) : null}
+                                                        {/* Role · Team size */}
+                                                        {pfData?.role ||
+                                                        pfData?.teamSize ? (
+                                                            <p className="relative z-10 m-0 mb-1.5 text-xs text-(--color-muted)">
+                                                                {[
+                                                                    pfData.role,
+                                                                    pfData.teamSize
+                                                                        ? `${pfData.teamSize}인`
+                                                                        : null,
+                                                                ]
+                                                                    .filter(
+                                                                        Boolean
+                                                                    )
+                                                                    .join(
+                                                                        " · "
+                                                                    )}
+                                                            </p>
+                                                        ) : null}
+                                                        {/* Date range */}
+                                                        {(project.startDate ||
+                                                            project.endDate) && (
+                                                            <div
+                                                                className="relative z-10 mb-2 text-sm text-(--color-muted)"
+                                                                style={{
+                                                                    fontVariantNumeric:
+                                                                        "tabular-nums",
+                                                                }}
+                                                            >
+                                                                {formatDateRange(
+                                                                    project.startDate,
+                                                                    project.endDate
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {/* Content */}
+                                                        {project.sections &&
+                                                        project.sections
+                                                            .length > 0 ? (
+                                                            project.sections.map(
+                                                                (
+                                                                    sec: {
+                                                                        title: string;
+                                                                        content: string;
+                                                                        markdown?: boolean;
+                                                                    },
+                                                                    sIdx: number
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            sIdx
+                                                                        }
+                                                                        className="mt-2"
+                                                                    >
+                                                                        {sec.title ? (
+                                                                            <p className="m-0 mb-0.5 text-base font-semibold tracking-wider text-(--color-muted) uppercase">
+                                                                                {
+                                                                                    sec.title
+                                                                                }
+                                                                            </p>
+                                                                        ) : null}
+                                                                        {projectsMarkdown[
+                                                                            pIdx
+                                                                        ]?.[
+                                                                            sIdx
+                                                                        ] ? (
+                                                                            <div
+                                                                                className="resume-markdown m-0 text-base leading-[1.6] text-(--color-foreground)"
+                                                                                dangerouslySetInnerHTML={{
+                                                                                    __html: projectsMarkdown[
+                                                                                        pIdx
+                                                                                    ][
+                                                                                        sIdx
+                                                                                    ]!,
+                                                                                }}
+                                                                            />
+                                                                        ) : (
+                                                                            <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
+                                                                                {
+                                                                                    sec.content
+                                                                                }
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <>
+                                                                {project.description ? (
+                                                                    <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
+                                                                        {
+                                                                            project.description
                                                                         }
                                                                     </p>
                                                                 ) : null}
-                                                                {projectsMarkdown[
-                                                                    pIdx
-                                                                ]?.[sIdx] ? (
-                                                                    <div
-                                                                        className="resume-markdown m-0 text-base leading-[1.6] text-(--color-foreground)"
-                                                                        dangerouslySetInnerHTML={{
-                                                                            __html: projectsMarkdown[
-                                                                                pIdx
-                                                                            ][
-                                                                                sIdx
-                                                                            ]!,
-                                                                        }}
-                                                                    />
-                                                                ) : (
-                                                                    <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
-                                                                        {
-                                                                            sec.content
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        )
-                                                    )
-                                                ) : (
-                                                    <>
-                                                        {project.description ? (
-                                                            <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
-                                                                {
-                                                                    project.description
-                                                                }
-                                                            </p>
-                                                        ) : null}
-                                                        {project.highlights &&
-                                                        project.highlights
-                                                            .length > 0 ? (
-                                                            <ul className="mt-1 mb-0 pl-2 text-base text-(--color-foreground)">
-                                                                {project.highlights.map(
-                                                                    (
-                                                                        highlight: string,
-                                                                        hIdx: number
-                                                                    ) => (
-                                                                        <li
-                                                                            key={
-                                                                                hIdx
-                                                                            }
-                                                                            className="mb-[0.2em]"
-                                                                        >
-                                                                            {`• ${highlight}`}
-                                                                        </li>
-                                                                    )
-                                                                )}
-                                                            </ul>
-                                                        ) : null}
-                                                    </>
-                                                )}
-                                            </div>
-                                        )
+                                                                {project.highlights &&
+                                                                project
+                                                                    .highlights
+                                                                    .length >
+                                                                    0 ? (
+                                                                    <ul className="mt-1 mb-0 pl-2 text-base text-(--color-foreground)">
+                                                                        {project.highlights.map(
+                                                                            (
+                                                                                highlight: string,
+                                                                                hIdx: number
+                                                                            ) => (
+                                                                                <li
+                                                                                    key={
+                                                                                        hIdx
+                                                                                    }
+                                                                                    className="mb-[0.2em]"
+                                                                                >
+                                                                                    {`• ${highlight}`}
+                                                                                </li>
+                                                                            )
+                                                                        )}
+                                                                    </ul>
+                                                                ) : null}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
                                     )}
                                 </div>
                             </section>
@@ -470,83 +613,16 @@ export default async function ResumeModern({ resume }: Props) {
                         Array.isArray(sectionValue)
                     ) {
                         return (
-                            <section key={sectionKey} className="mb-10">
-                                <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                                    {getLabel("skills")}
-                                </h2>
-                                <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3">
-                                    {sectionValue.map((skill, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="rounded-lg border border-(--color-border) bg-(--color-surface-subtle) px-4 py-3"
-                                        >
-                                            {skill.name ? (
-                                                <div className="mb-1.5 flex items-center gap-2 text-base font-bold text-(--color-foreground)">
-                                                    {skill.iconSlug &&
-                                                    getSimpleIcon(
-                                                        skill.iconSlug
-                                                    ) ? (
-                                                        <svg
-                                                            role="img"
-                                                            viewBox="0 0 24 24"
-                                                            className="h-4 w-4"
-                                                            style={{
-                                                                fill:
-                                                                    skill.iconColor ||
-                                                                    `#${getSimpleIcon(skill.iconSlug)!.hex}`,
-                                                            }}
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <title>
-                                                                {
-                                                                    getSimpleIcon(
-                                                                        skill.iconSlug
-                                                                    )!.title
-                                                                }
-                                                            </title>
-                                                            <path
-                                                                d={
-                                                                    getSimpleIcon(
-                                                                        skill.iconSlug
-                                                                    )!.path
-                                                                }
-                                                            />
-                                                        </svg>
-                                                    ) : null}
-                                                    {skill.name}
-                                                </div>
-                                            ) : null}
-                                            {skill.level ? (
-                                                <div className="mb-1.5 text-sm text-(--color-muted)">
-                                                    {skill.level}
-                                                </div>
-                                            ) : null}
-                                            {skill.keywords &&
-                                            skill.keywords.length > 0 ? (
-                                                <div className="mt-1 flex flex-wrap gap-1.5">
-                                                    {skill.keywords.map(
-                                                        (
-                                                            kw: ResumeSkillKeyword,
-                                                            kIdx: number
-                                                        ) => (
-                                                            <SkillBadge
-                                                                key={kIdx}
-                                                                name={kw.name}
-                                                                overrideSlug={
-                                                                    kw.iconSlug
-                                                                }
-                                                                overrideColor={
-                                                                    kw.iconColor
-                                                                }
-                                                            />
-                                                        )
-                                                    )}
-                                                </div>
-                                            ) : null}
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
+                            <SkillsSection
+                                key={sectionKey}
+                                skills={resume.skills?.entries ?? []}
+                                works={resume.work?.entries ?? []}
+                                projects={resume.projects?.entries ?? []}
+                                defaultView={
+                                    (resume.skills?.defaultView ??
+                                        "by-job-field") as any
+                                }
+                            />
                         );
                     }
 
