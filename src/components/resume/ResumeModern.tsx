@@ -46,7 +46,7 @@ export default async function ResumeModern({ resume }: Props) {
         "references",
     ];
     const sections = Object.entries(resume)
-        .filter(([key]) => key !== "basics")
+        .filter(([key]) => key !== "basics" && key !== "careerPhases")
         .map(
             ([key, val]) =>
                 [key, (val as any)?.entries ?? []] as [string, any[]]
