@@ -160,6 +160,8 @@ export interface ResumeProject {
     hideDays?: boolean;
     // 노출 직무 분야 id 배열. 비어있거나 없으면 미노출
     jobField?: string | string[];
+    // 포트폴리오 슬러그 — 연결된 포트폴리오 항목에서 썸네일·태그·역할 등을 가져옴
+    portfolioSlug?: string;
     // 자유 양식 섹션 목록. 존재하면 description/highlights 대신 렌더링
     sections?: ResumeProjectSection[];
 }
@@ -179,6 +181,7 @@ export interface ResumeSection<T> {
     emoji: string;
     showEmoji: boolean;
     entries: T[];
+    defaultView?: string;
 }
 
 export interface Resume {

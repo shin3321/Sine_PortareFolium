@@ -487,6 +487,9 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                     activeJobField={activeJobField}
                     works={resume.work?.entries ?? []}
                     projects={resume.projects?.entries ?? []}
+                    defaultView={
+                        (resume.skills?.defaultView ?? "by-job-field") as any
+                    }
                 />
             ) : null}
 

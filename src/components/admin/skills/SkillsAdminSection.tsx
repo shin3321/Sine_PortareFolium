@@ -776,6 +776,31 @@ export default function SkillsAdminSection({
                             이모지 표시
                         </label>
                     </div>
+                    <div className="ml-4 flex items-center gap-2">
+                        <label className="text-sm font-medium text-(--color-muted) select-none">
+                            기본 정렬
+                        </label>
+                        <select
+                            value={
+                                resumeData.skills?.defaultView ?? "by-job-field"
+                            }
+                            onChange={(e) =>
+                                setResumeData({
+                                    ...resumeData,
+                                    skills: {
+                                        ...skillsOrDefault(resumeData),
+                                        defaultView: e.target.value,
+                                    },
+                                })
+                            }
+                            className="rounded-md border border-(--color-border) bg-(--color-surface-subtle) px-2 py-1 text-xs text-(--color-muted) focus:outline-none"
+                        >
+                            <option value="by-job-field">직무 분야별</option>
+                            <option value="by-experience">경력별</option>
+                            <option value="by-category">카테고리별</option>
+                            <option value="by-project">프로젝트별</option>
+                        </select>
+                    </div>
                 </div>
                 <button
                     onClick={() => {
