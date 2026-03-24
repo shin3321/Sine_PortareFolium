@@ -747,6 +747,51 @@ body {
     display: none;
 }
 
+/* resume section 마크다운 렌더링: 최소 서식 (resume 레이아웃 영향 최소화) */
+.resume-markdown strong,
+.resume-markdown b {
+    font-weight: 600;
+}
+.resume-markdown em,
+.resume-markdown i {
+    font-style: italic;
+}
+.resume-markdown s {
+    text-decoration: line-through;
+}
+.resume-markdown u {
+    text-decoration: underline;
+}
+.resume-markdown ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+}
+.resume-markdown ol {
+    list-style: decimal;
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+}
+.resume-markdown li {
+    margin-bottom: 0.15rem;
+}
+.resume-markdown p {
+    margin: 0 0 0.25rem;
+}
+.resume-markdown p:last-child {
+    margin-bottom: 0;
+}
+.resume-markdown a {
+    color: var(--color-link);
+}
+.resume-markdown code {
+    background: var(--color-code-bg);
+    color: var(--color-code-fg);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.2rem;
+    font-size: 0.875em;
+}
+
 /* Admin RichMarkdownEditor: 다크모드 (Tailwind @apply) */
 .dark .mdxeditor button,
 .dark .mdxeditor [role="button"],

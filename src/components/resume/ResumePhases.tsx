@@ -435,7 +435,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                                                                     }}
                                                                 />
                                                             ) : (
-                                                                <p className="m-0 text-base leading-[1.6] text-(--color-foreground)">
+                                                                <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
                                                                     {
                                                                         sec.content
                                                                     }
@@ -447,7 +447,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                                             ) : (
                                                 <>
                                                     {proj.description ? (
-                                                        <p className="m-0 text-base leading-[1.6] text-(--color-foreground)">
+                                                        <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
                                                             {proj.description}
                                                         </p>
                                                     ) : null}

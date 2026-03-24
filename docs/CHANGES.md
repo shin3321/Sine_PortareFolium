@@ -2,6 +2,13 @@
 
 ## 2026-03-24
 
+### Fix: 프로젝트 섹션 마크다운 렌더링 및 줄바꿈 처리 (v0.7.44)
+
+- `src/styles/global.css`: `.resume-markdown` CSS 규칙 추가 — `strong`, `em`, `ul`, `ol`, `li`, `a`, `code` 등 기본 마크다운 서식 정의. Tailwind preflight가 기본 HTML 스타일을 초기화하므로 명시적 규칙이 없어 체크박스를 켜도 렌더링이 plaintext와 동일하게 보이던 문제의 근본 원인.
+- `src/components/resume/ResumeClassic.tsx`, `ResumeModern.tsx`, `ResumeMinimal.tsx`, `ResumePhases.tsx`: sections 및 description plaintext `<p>` 요소에 `whitespace-pre-wrap` 추가 — 줄바꿈(`\n`)이 무시되던 문제 수정.
+
+## 2026-03-24
+
 ### Fix: desktop 브레이크포인트 1600px 정정 및 TOC laptop 전환 (v0.7.43)
 
 - `src/styles/global.css`: `--breakpoint-desktop` 64rem(1024px) → 100rem(1600px) — laptop(1241px)보다 커야 하는 논리적 순서 수정. 참조 프로젝트 기준값 반영.

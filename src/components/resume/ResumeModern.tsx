@@ -573,7 +573,7 @@ export default async function ResumeModern({ resume }: Props) {
                                                                         }}
                                                                     />
                                                                 ) : (
-                                                                    <p className="m-0 text-base leading-[1.6] text-(--color-foreground)">
+                                                                    <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
                                                                         {
                                                                             sec.content
                                                                         }
@@ -585,7 +585,7 @@ export default async function ResumeModern({ resume }: Props) {
                                                 ) : (
                                                     <>
                                                         {project.description ? (
-                                                            <p className="m-0 text-base leading-[1.6] text-(--color-foreground)">
+                                                            <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
                                                                 {
                                                                     project.description
                                                                 }

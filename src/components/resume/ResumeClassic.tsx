@@ -562,7 +562,7 @@ export default async function ResumeClassic({ resume }: Props) {
                                                                 }}
                                                             />
                                                         ) : (
-                                                            <p className="my-2 text-base leading-[1.6] text-(--color-foreground)">
+                                                            <p className="my-2 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
                                                                 {sec.content}
                                                             </p>
                                                         )}
@@ -572,7 +572,7 @@ export default async function ResumeClassic({ resume }: Props) {
                                         ) : (
                                             <>
                                                 {project.description ? (
-                                                    <p className="my-2 text-base leading-[1.6] text-(--color-foreground)">
+                                                    <p className="my-2 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
                                                         {project.description}
                                                     </p>
                                                 ) : null}
