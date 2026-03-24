@@ -104,8 +104,12 @@ export interface ResumeSkillKeyword {
     // 키워드 단위 직무 분야
     jobField?: string | string[];
     level?: string;
+    // 하위 호환용 단일 ref (구버전 데이터)
     workRef?: string;
     projectRef?: string;
+    // 다중 연결 직장/프로젝트
+    workRefs?: string[];
+    projectRefs?: string[];
 }
 
 export interface ResumeSkill {

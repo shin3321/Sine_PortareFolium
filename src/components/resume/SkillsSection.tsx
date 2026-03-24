@@ -24,6 +24,20 @@ function workKey(w: ResumeWork): string {
     return w.position ? `${w.position} @ ${w.name}` : w.name;
 }
 
+// 하위 호환: workRef(단일) 또는 workRefs(배열) 읽기
+function getWorkRefs(kw: ResumeSkillKeyword): string[] {
+    if (kw.workRefs && kw.workRefs.length > 0) return kw.workRefs;
+    if (kw.workRef) return [kw.workRef];
+    return [];
+}
+
+// 하위 호환: projectRef(단일) 또는 projectRefs(배열) 읽기
+function getProjectRefs(kw: ResumeSkillKeyword): string[] {
+    if (kw.projectRefs && kw.projectRefs.length > 0) return kw.projectRefs;
+    if (kw.projectRef) return [kw.projectRef];
+    return [];
+}
+
 function groupByExperience(
     keywords: FlatSkill[],
     activeJobField: string,
@@ -43,9 +57,17 @@ function groupByExperience(
     );
     const groups = new Map<string, FlatSkill[]>();
     for (const kw of keywords) {
-        const key = kw.workRef || kw.projectRef || "__other__";
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key)!.push(kw);
+        // 직무별 뷰: workRefs만 사용 (projectRefs는 프로젝트별 뷰에서 처리)
+        const refs = getWorkRefs(kw);
+        if (refs.length === 0) {
+            if (!groups.has("__other__")) groups.set("__other__", []);
+            groups.get("__other__")!.push(kw);
+        } else {
+            for (const ref of refs) {
+                if (!groups.has(ref)) groups.set(ref, []);
+                groups.get(ref)!.push(kw);
+            }
+        }
     }
     return [...groups.entries()]
         .map(([key, skills]) => ({
@@ -55,6 +77,47 @@ function groupByExperience(
             skills,
         }))
         .sort((a, b) => Number(b.isActive) - Number(a.isActive));
+}
+
+// 프로젝트 섹션 순서대로 스킬 그룹화
+function groupByProject(
+    keywords: FlatSkill[],
+    projects: ResumeProject[]
+): { key: string; label: string; skills: FlatSkill[] }[] {
+    const projectOrder = projects.map((p) => p.name ?? "").filter(Boolean);
+    const groups = new Map<string, FlatSkill[]>();
+    for (const kw of keywords) {
+        const refs = getProjectRefs(kw);
+        if (refs.length === 0) {
+            if (!groups.has("__other__")) groups.set("__other__", []);
+            groups.get("__other__")!.push(kw);
+        } else {
+            for (const ref of refs) {
+                if (!groups.has(ref)) groups.set(ref, []);
+                groups.get(ref)!.push(kw);
+            }
+        }
+    }
+    const result: { key: string; label: string; skills: FlatSkill[] }[] = [];
+    for (const name of projectOrder) {
+        if (groups.has(name)) {
+            result.push({ key: name, label: name, skills: groups.get(name)! });
+        }
+    }
+    // 프로젝트 목록에 없는 ref
+    for (const [key, skills] of groups) {
+        if (!projectOrder.includes(key) && key !== "__other__") {
+            result.push({ key, label: key, skills });
+        }
+    }
+    if (groups.has("__other__")) {
+        result.push({
+            key: "__other__",
+            label: "기타",
+            skills: groups.get("__other__")!,
+        });
+    }
+    return result;
 }
 
 interface Props {
@@ -71,7 +134,7 @@ export default function SkillsSection({
     projects,
 }: Props) {
     const [skillsView, setSkillsView] = useState<
-        "by-experience" | "by-category"
+        "by-experience" | "by-category" | "by-project"
     >("by-experience");
 
     return (
@@ -84,13 +147,17 @@ export default function SkillsSection({
                     value={skillsView}
                     onChange={(e) =>
                         setSkillsView(
-                            e.target.value as "by-experience" | "by-category"
+                            e.target.value as
+                                | "by-experience"
+                                | "by-category"
+                                | "by-project"
                         )
                     }
                     className="rounded-md border border-(--color-border) bg-(--color-surface-subtle) px-2 py-1 text-xs text-(--color-muted) focus:outline-none"
                 >
                     <option value="by-experience">직무별</option>
                     <option value="by-category">카테고리별</option>
+                    <option value="by-project">프로젝트별</option>
                 </select>
             </div>
             {skillsView === "by-experience" ? (
@@ -113,6 +180,41 @@ export default function SkillsSection({
                                                 : "text-(--color-muted)"
                                         }`}
                                     >
+                                        {group.label}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {group.skills.map((kw, i) => (
+                                            <div
+                                                key={i}
+                                                className="flex flex-col items-center gap-0.5"
+                                            >
+                                                <SkillBadge
+                                                    name={kw.name}
+                                                    overrideSlug={kw.iconSlug}
+                                                    overrideColor={kw.iconColor}
+                                                />
+                                                {kw.level && (
+                                                    <span className="text-[0.6rem] text-(--color-muted)">
+                                                        {kw.level}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })()
+            ) : skillsView === "by-project" ? (
+                (() => {
+                    const flat = flattenKeywords(skills);
+                    const groups = groupByProject(flat, projects);
+                    return (
+                        <div className="space-y-6">
+                            {groups.map((group) => (
+                                <div key={group.key}>
+                                    <p className="mb-2 text-sm font-semibold text-(--color-accent)">
                                         {group.label}
                                     </p>
                                     <div className="flex flex-wrap gap-2">

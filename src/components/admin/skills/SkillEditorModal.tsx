@@ -47,9 +47,8 @@ interface FormState {
     categoryName: string;
     level: string;
     jobField: string[];
-    expType: "none" | "work" | "project";
-    workRef: string;
-    projectRef: string;
+    workRefs: string[];
+    projectRefs: string[];
     iconSlug: string;
     iconColor: string;
 }
@@ -60,19 +59,17 @@ function buildInitialForm(
 ): FormState {
     const jf = skill?.jobField;
     const jobField = jf == null ? [] : Array.isArray(jf) ? jf : [jf];
-    const expType: FormState["expType"] = skill?.workRef
-        ? "work"
-        : skill?.projectRef
-          ? "project"
-          : "none";
+    // 하위 호환: workRef(단일) 또는 workRefs(배열) 읽기
+    const workRefs = skill?.workRefs ?? (skill?.workRef ? [skill.workRef] : []);
+    const projectRefs =
+        skill?.projectRefs ?? (skill?.projectRef ? [skill.projectRef] : []);
     return {
         name: skill?.name ?? "",
         categoryName: catName ?? "",
         level: skill?.level ?? "",
         jobField,
-        expType,
-        workRef: skill?.workRef ?? "",
-        projectRef: skill?.projectRef ?? "",
+        workRefs,
+        projectRefs,
         iconSlug: skill?.iconSlug ?? "",
         iconColor: skill?.iconColor ?? "",
     };
@@ -84,9 +81,8 @@ function formsEqual(a: FormState, b: FormState): boolean {
         a.categoryName === b.categoryName &&
         a.level === b.level &&
         JSON.stringify(a.jobField) === JSON.stringify(b.jobField) &&
-        a.expType === b.expType &&
-        a.workRef === b.workRef &&
-        a.projectRef === b.projectRef &&
+        JSON.stringify(a.workRefs) === JSON.stringify(b.workRefs) &&
+        JSON.stringify(a.projectRefs) === JSON.stringify(b.projectRefs) &&
         a.iconSlug === b.iconSlug &&
         a.iconColor === b.iconColor
     );
@@ -195,14 +191,9 @@ export default function SkillEditorModal({
                     name: f.name,
                     level: f.level || undefined,
                     jobField: f.jobField.length > 0 ? f.jobField : undefined,
-                    workRef:
-                        f.expType === "work"
-                            ? f.workRef || undefined
-                            : undefined,
-                    projectRef:
-                        f.expType === "project"
-                            ? f.projectRef || undefined
-                            : undefined,
+                    workRefs: f.workRefs.length > 0 ? f.workRefs : undefined,
+                    projectRefs:
+                        f.projectRefs.length > 0 ? f.projectRefs : undefined,
                     iconSlug: f.iconSlug || undefined,
                     iconColor: f.iconColor || undefined,
                 },
@@ -262,12 +253,9 @@ export default function SkillEditorModal({
             name: form.name,
             level: form.level || undefined,
             jobField: form.jobField.length > 0 ? form.jobField : undefined,
-            workRef:
-                form.expType === "work" ? form.workRef || undefined : undefined,
-            projectRef:
-                form.expType === "project"
-                    ? form.projectRef || undefined
-                    : undefined,
+            workRefs: form.workRefs.length > 0 ? form.workRefs : undefined,
+            projectRefs:
+                form.projectRefs.length > 0 ? form.projectRefs : undefined,
             iconSlug: form.iconSlug || undefined,
             iconColor: form.iconColor || undefined,
         };
@@ -429,90 +417,96 @@ export default function SkillEditorModal({
                         onChange={(v) => updateForm({ jobField: v })}
                     />
 
-                    {/* 연결 경험 */}
+                    {/* 연결 직장 */}
                     <div className="flex flex-col space-y-2">
                         <label className="text-sm font-medium text-(--color-muted)">
-                            연결 경험
+                            연결 직장
                         </label>
-                        <div className="flex gap-1">
-                            {(["none", "work", "project"] as const).map(
-                                (opt) => {
-                                    const label =
-                                        opt === "none"
-                                            ? "없음"
-                                            : opt === "work"
-                                              ? "직장"
-                                              : "프로젝트";
-                                    return (
-                                        <button
-                                            key={opt}
-                                            type="button"
-                                            onClick={() => {
-                                                if (opt === "none") {
-                                                    updateForm({
-                                                        expType: "none",
-                                                        workRef: "",
-                                                        projectRef: "",
-                                                    });
-                                                } else if (opt === "work") {
-                                                    updateForm({
-                                                        expType: "work",
-                                                        workRef:
-                                                            workOptions[0]
-                                                                ?.value ?? "",
-                                                        projectRef: "",
-                                                    });
-                                                } else {
-                                                    updateForm({
-                                                        expType: "project",
-                                                        projectRef:
-                                                            projectOptions[0]
-                                                                ?.value ?? "",
-                                                        workRef: "",
-                                                    });
-                                                }
-                                            }}
-                                            className={`rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap ${
-                                                form.expType === opt
-                                                    ? "bg-(--color-accent) text-(--color-on-accent)"
-                                                    : "border border-(--color-border) text-(--color-muted) hover:text-(--color-foreground)"
-                                            }`}
-                                        >
-                                            {label}
-                                        </button>
-                                    );
-                                }
-                            )}
-                        </div>
-                        {form.expType === "work" && (
-                            <select
-                                value={form.workRef}
-                                onChange={(e) =>
-                                    updateForm({ workRef: e.target.value })
-                                }
-                                className="rounded-lg border border-(--color-border) bg-transparent px-3 py-2 text-sm text-(--color-foreground) focus:border-(--color-accent) focus:outline-none"
-                            >
+                        {workOptions.length > 0 ? (
+                            <div className="max-h-32 space-y-1 overflow-y-auto rounded-lg border border-(--color-border) p-2">
                                 {workOptions.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                        {o.label}
-                                    </option>
+                                    <label
+                                        key={o.value}
+                                        className="flex cursor-pointer items-center gap-2 select-none"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={form.workRefs.includes(
+                                                o.value
+                                            )}
+                                            onChange={(e) => {
+                                                updateForm((prev) => ({
+                                                    ...prev,
+                                                    workRefs: e.target.checked
+                                                        ? [
+                                                              ...prev.workRefs,
+                                                              o.value,
+                                                          ]
+                                                        : prev.workRefs.filter(
+                                                              (r) =>
+                                                                  r !== o.value
+                                                          ),
+                                                }));
+                                            }}
+                                            className="h-4 w-4 cursor-pointer accent-(--color-accent)"
+                                        />
+                                        <span className="text-sm text-(--color-foreground)">
+                                            {o.label}
+                                        </span>
+                                    </label>
                                 ))}
-                            </select>
+                            </div>
+                        ) : (
+                            <p className="text-xs text-(--color-muted)">
+                                등록된 직장이 없습니다
+                            </p>
                         )}
-                        {form.expType === "project" && (
-                            <select
-                                value={form.projectRef}
-                                onChange={(e) =>
-                                    updateForm({ projectRef: e.target.value })
-                                }
-                                className="rounded-lg border border-(--color-border) bg-transparent px-3 py-2 text-sm text-(--color-foreground) focus:border-(--color-accent) focus:outline-none"
-                            >
+                    </div>
+
+                    {/* 연결 프로젝트 */}
+                    <div className="flex flex-col space-y-2">
+                        <label className="text-sm font-medium text-(--color-muted)">
+                            연결 프로젝트
+                        </label>
+                        {projectOptions.length > 0 ? (
+                            <div className="max-h-32 space-y-1 overflow-y-auto rounded-lg border border-(--color-border) p-2">
                                 {projectOptions.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                        {o.label}
-                                    </option>
+                                    <label
+                                        key={o.value}
+                                        className="flex cursor-pointer items-center gap-2 select-none"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={form.projectRefs.includes(
+                                                o.value
+                                            )}
+                                            onChange={(e) => {
+                                                updateForm((prev) => ({
+                                                    ...prev,
+                                                    projectRefs: e.target
+                                                        .checked
+                                                        ? [
+                                                              ...prev.projectRefs,
+                                                              o.value,
+                                                          ]
+                                                        : prev.projectRefs.filter(
+                                                              (r) =>
+                                                                  r !== o.value
+                                                          ),
+                                                }));
+                                            }}
+                                            className="h-4 w-4 cursor-pointer accent-(--color-accent)"
+                                        />
+                                        <span className="text-sm text-(--color-foreground)">
+                                            {o.label}
+                                        </span>
+                                    </label>
                                 ))}
-                            </select>
+                            </div>
+                        ) : (
+                            <p className="text-xs text-(--color-muted)">
+                                등록된 프로젝트가 없습니다
+                            </p>
                         )}
                     </div>
 

@@ -2,6 +2,27 @@
 
 ## 2026-03-24
 
+### Feat: 스킬 행에 직무 분야 표시 (v0.7.48)
+
+- `src/components/admin/skills/SkillsAdminSection.tsx`: `renderSkillRow`에 직무 분야 행 추가 (카테고리 아래). `JobFieldBadges` 컴포넌트로 emoji+name 배지 렌더링. `jobField`가 없으면 행 미표시.
+
+### Feat: 스킬 어드민 드래그 앤 드롭 재정렬 (v0.7.47)
+
+- `src/components/admin/skills/SkillsAdminSection.tsx`: 카테고리별 정렬 모드에서 스킬 행 드래그 앤 드롭 재정렬 지원. `dragSrcRef`로 드래그 소스 추적, `handleSkillReorder`로 같은/다른 카테고리 간 이동 처리. `⠿` 드래그 핸들 표시. 알파벳순 모드에서는 드래그 비활성화.
+
+### Fix: 스킬 어드민 행 레이아웃 세로 구조 재편 (v0.7.46)
+
+- `src/components/admin/skills/SkillsAdminSection.tsx`: `renderSkillRow` 레이아웃을 수평 flat → 세로 속성 행 구조로 재편. 순서: 이름(아이콘 포함) → 숙련도 → 카테고리 → 연결 직장 → 연결 프로젝트. 직장/프로젝트 배지를 별도 행으로 분리 표시. `expBadges` 헬퍼 제거 후 `workRefs`/`projectRefs` 인라인 파생.
+
+### Feat: 스킬 프로젝트별 정렬 및 다중 연결 지원 (v0.7.45)
+
+- `src/types/resume.ts`: `ResumeSkillKeyword`에 `workRefs?: string[]`, `projectRefs?: string[]` 추가 — 기존 단일 `workRef`/`projectRef`는 하위 호환용으로 유지.
+- `src/components/resume/SkillsSection.tsx`: `"by-project"` 뷰 추가 — 프로젝트 섹션 순서 미러링. `getWorkRefs`/`getProjectRefs` 헬퍼 추가 (단일/배열 하위 호환). `groupByExperience` 다중 ref 지원(스킬이 여러 그룹에 노출). `groupByProject` 함수 추가.
+- `src/components/admin/skills/SkillEditorModal.tsx`: `expType/workRef/projectRef` 단일 선택 → `workRefs`/`projectRefs` 다중 체크박스 UI로 교체.
+- `src/components/admin/skills/SkillsAdminSection.tsx`: `expBadge` → `expBadges` (다중 ref 배지 표시). `renderSkillRow` initialSkill에 `workRefs`/`projectRefs` 전달.
+
+## 2026-03-24
+
 ### Fix: 프로젝트 섹션 마크다운 렌더링 및 줄바꿈 처리 (v0.7.44)
 
 - `src/styles/global.css`: `.resume-markdown` CSS 규칙 추가 — `strong`, `em`, `ul`, `ol`, `li`, `a`, `code` 등 기본 마크다운 서식 정의. Tailwind preflight가 기본 HTML 스타일을 초기화하므로 명시적 규칙이 없어 체크박스를 켜도 렌더링이 plaintext와 동일하게 보이던 문제의 근본 원인.

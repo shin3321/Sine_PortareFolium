@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { getSimpleIcon } from "@/components/resume/SkillBadge";
 import { Switch } from "@/components/ui/switch";
-import { type JobFieldItem } from "@/components/admin/JobFieldSelector";
+import {
+    JobFieldBadges,
+    type JobFieldItem,
+} from "@/components/admin/JobFieldSelector";
 import SkillEditorModal from "@/components/admin/skills/SkillEditorModal";
 import type { Resume, ResumeSkillKeyword } from "@/types/resume";
 import Picker from "@emoji-mart/react";
@@ -118,6 +121,9 @@ export default function SkillsAdminSection({
     const [batchAction, setBatchAction] = useState<BatchAction | null>(null);
     const [batchValue, setBatchValue] = useState("");
 
+    // 드래그 앤 드롭 소스 추적
+    const dragSrcRef = useRef<{ catIdx: number; kwIdx: number } | null>(null);
+
     // mount 시 draft 확인
     useEffect(() => {
         const raw = localStorage.getItem(DRAFT_KEY);
@@ -229,6 +235,30 @@ export default function SkillsAdminSection({
             kws.splice(kwIdx, 1);
             return { ...cat, keywords: kws };
         });
+        setResumeData({ ...resumeData, skills: { ...skills, entries } });
+    };
+
+    // 드래그 앤 드롭 재정렬 (카테고리 내 또는 카테고리 간 이동)
+    const handleSkillReorder = (
+        fromCatIdx: number,
+        fromKwIdx: number,
+        toCatIdx: number,
+        toKwIdx: number
+    ) => {
+        onBackup();
+        const skills = skillsOrDefault(resumeData);
+        const entries = skills.entries.map((e) => ({
+            ...e,
+            keywords: [...(e.keywords ?? [])],
+        }));
+        const skill = entries[fromCatIdx].keywords[fromKwIdx];
+        if (fromCatIdx === toCatIdx) {
+            entries[fromCatIdx].keywords.splice(fromKwIdx, 1);
+            entries[fromCatIdx].keywords.splice(toKwIdx, 0, skill);
+        } else {
+            entries[fromCatIdx].keywords.splice(fromKwIdx, 1);
+            entries[toCatIdx].keywords.splice(toKwIdx, 0, skill);
+        }
         setResumeData({ ...resumeData, skills: { ...skills, entries } });
     };
 
@@ -420,103 +450,195 @@ export default function SkillsAdminSection({
         setResumeData({ ...resumeData, skills: { ...skills, entries } });
     };
 
-    // 경험 연결 badge text
-    const expBadge = (s: FlatSkill) => {
-        if (s.workRef) return s.workRef;
-        if (s.projectRef) return s.projectRef;
-        return null;
-    };
-
     // 스킬 행 렌더링
     const renderSkillRow = (s: FlatSkill) => {
         const key = `${s.categoryIdx}-${s.kwIdx}`;
         const icon = s.iconSlug ? getSimpleIcon(s.iconSlug) : null;
         const isSelected = selectedKeys.has(key);
+        const workRefs = s.workRefs ?? (s.workRef ? [s.workRef] : []);
+        const projectRefs =
+            s.projectRefs ?? (s.projectRef ? [s.projectRef] : []);
+        const isDraggable = sortMode === "category";
         return (
             <div
                 key={key}
-                className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 transition-colors ${
+                draggable={isDraggable}
+                onDragStart={
+                    isDraggable
+                        ? () => {
+                              dragSrcRef.current = {
+                                  catIdx: s.categoryIdx,
+                                  kwIdx: s.kwIdx,
+                              };
+                          }
+                        : undefined
+                }
+                onDragOver={isDraggable ? (e) => e.preventDefault() : undefined}
+                onDrop={
+                    isDraggable
+                        ? () => {
+                              if (
+                                  !dragSrcRef.current ||
+                                  (dragSrcRef.current.catIdx ===
+                                      s.categoryIdx &&
+                                      dragSrcRef.current.kwIdx === s.kwIdx)
+                              )
+                                  return;
+                              handleSkillReorder(
+                                  dragSrcRef.current.catIdx,
+                                  dragSrcRef.current.kwIdx,
+                                  s.categoryIdx,
+                                  s.kwIdx
+                              );
+                              dragSrcRef.current = null;
+                          }
+                        : undefined
+                }
+                className={`rounded-lg border px-4 py-3 transition-colors ${
                     isSelected
                         ? "border-(--color-accent) bg-(--color-accent)/5"
                         : "border-(--color-border) bg-transparent"
-                }`}
+                } ${isDraggable ? "cursor-grab active:cursor-grabbing" : ""}`}
             >
-                {/* 체크박스 */}
-                <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleSelect(key)}
-                    className="h-4 w-4 shrink-0 cursor-pointer accent-(--color-accent)"
-                />
-                {/* 아이콘 */}
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                    {icon ? (
-                        <svg
-                            role="img"
-                            viewBox="0 0 24 24"
-                            className="h-5 w-5"
-                            style={{ fill: s.iconColor || `#${icon.hex}` }}
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <title>{icon.title}</title>
-                            <path d={icon.path} />
-                        </svg>
-                    ) : (
-                        <span className="text-xs text-(--color-muted)">—</span>
+                <div className="flex items-start gap-3">
+                    {/* 드래그 핸들 */}
+                    {isDraggable && (
+                        <span className="mt-0.5 shrink-0 text-sm text-(--color-muted) select-none">
+                            ⠿
+                        </span>
                     )}
+                    {/* 체크박스 */}
+                    <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelect(key)}
+                        className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-(--color-accent)"
+                    />
+                    {/* 속성 영역 */}
+                    <div className="flex-1 space-y-1.5">
+                        {/* 이름 */}
+                        <div className="flex items-center gap-2">
+                            {icon ? (
+                                <svg
+                                    role="img"
+                                    viewBox="0 0 24 24"
+                                    className="h-4 w-4 shrink-0"
+                                    style={{
+                                        fill: s.iconColor || `#${icon.hex}`,
+                                    }}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <title>{icon.title}</title>
+                                    <path d={icon.path} />
+                                </svg>
+                            ) : null}
+                            <span className="font-semibold text-(--color-foreground)">
+                                {s.name}
+                            </span>
+                        </div>
+                        {/* 숙련도 */}
+                        {s.level && (
+                            <div className="flex items-center gap-2">
+                                <span className="w-16 shrink-0 text-xs text-(--color-muted)">
+                                    숙련도
+                                </span>
+                                <span className="rounded bg-(--color-surface-subtle) px-1.5 py-0.5 text-xs text-(--color-muted)">
+                                    {s.level}
+                                </span>
+                            </div>
+                        )}
+                        {/* 카테고리 */}
+                        <div className="flex items-center gap-2">
+                            <span className="w-16 shrink-0 text-xs text-(--color-muted)">
+                                카테고리
+                            </span>
+                            <span className="rounded bg-(--color-accent)/10 px-1.5 py-0.5 text-xs text-(--color-accent)">
+                                {s.categoryName || "(미분류)"}
+                            </span>
+                        </div>
+                        {/* 직무 분야 */}
+                        {s.jobField && (
+                            <div className="flex items-center gap-2">
+                                <span className="w-16 shrink-0 text-xs text-(--color-muted)">
+                                    직무
+                                </span>
+                                <JobFieldBadges
+                                    value={s.jobField}
+                                    fields={jobFields}
+                                />
+                            </div>
+                        )}
+                        {/* 연결 직장 */}
+                        {workRefs.length > 0 && (
+                            <div className="flex items-start gap-2">
+                                <span className="mt-0.5 w-16 shrink-0 text-xs text-(--color-muted)">
+                                    직장
+                                </span>
+                                <div className="flex flex-wrap gap-1">
+                                    {workRefs.map((ref, i) => (
+                                        <span
+                                            key={i}
+                                            className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                                        >
+                                            {ref}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {/* 연결 프로젝트 */}
+                        {projectRefs.length > 0 && (
+                            <div className="flex items-start gap-2">
+                                <span className="mt-0.5 w-16 shrink-0 text-xs text-(--color-muted)">
+                                    프로젝트
+                                </span>
+                                <div className="flex flex-wrap gap-1">
+                                    {projectRefs.map((ref, i) => (
+                                        <span
+                                            key={i}
+                                            className="rounded bg-blue-100 px-1.5 py-0.5 text-xs text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                        >
+                                            {ref}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {/* 버튼 영역 */}
+                    <div className="flex shrink-0 gap-2">
+                        {/* 수정 */}
+                        <button
+                            onClick={() => {
+                                onBackup();
+                                setModalState({
+                                    originalCategoryIdx: s.categoryIdx,
+                                    originalKwIdx: s.kwIdx,
+                                    initialSkill: {
+                                        name: s.name,
+                                        level: s.level,
+                                        jobField: s.jobField,
+                                        workRefs,
+                                        projectRefs,
+                                        iconSlug: s.iconSlug,
+                                        iconColor: s.iconColor,
+                                    },
+                                    initialCategoryName: s.categoryName,
+                                });
+                            }}
+                            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                        >
+                            수정
+                        </button>
+                        {/* 삭제 */}
+                        <button
+                            onClick={() => handleDelete(s.categoryIdx, s.kwIdx)}
+                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                        >
+                            삭제
+                        </button>
+                    </div>
                 </div>
-                {/* 이름 */}
-                <span className="font-semibold text-(--color-foreground)">
-                    {s.name}
-                </span>
-                {/* level badge */}
-                {s.level && (
-                    <span className="rounded bg-(--color-surface-subtle) px-1.5 py-0.5 text-xs text-(--color-muted)">
-                        {s.level}
-                    </span>
-                )}
-                {/* category badge */}
-                <span className="rounded bg-(--color-accent)/10 px-1.5 py-0.5 text-xs text-(--color-accent)">
-                    {s.categoryName || "(미분류)"}
-                </span>
-                {/* experience badge */}
-                {expBadge(s) && (
-                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                        {expBadge(s)}
-                    </span>
-                )}
-                {/* spacer */}
-                <div className="flex-1" />
-                {/* 수정 */}
-                <button
-                    onClick={() => {
-                        onBackup();
-                        setModalState({
-                            originalCategoryIdx: s.categoryIdx,
-                            originalKwIdx: s.kwIdx,
-                            initialSkill: {
-                                name: s.name,
-                                level: s.level,
-                                jobField: s.jobField,
-                                workRef: s.workRef,
-                                projectRef: s.projectRef,
-                                iconSlug: s.iconSlug,
-                                iconColor: s.iconColor,
-                            },
-                            initialCategoryName: s.categoryName,
-                        });
-                    }}
-                    className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
-                >
-                    수정
-                </button>
-                {/* 삭제 */}
-                <button
-                    onClick={() => handleDelete(s.categoryIdx, s.kwIdx)}
-                    className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-white transition-opacity hover:opacity-90"
-                >
-                    삭제
-                </button>
             </div>
         );
     };
