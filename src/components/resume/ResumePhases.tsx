@@ -1,7 +1,9 @@
 import type { Resume } from "@/types/resume";
+import { defaultSectionLabels } from "@/types/resume";
 import { renderMarkdown } from "@/lib/markdown";
 import SkillsSection from "@/components/resume/SkillsSection";
-import { getPortfolioItem } from "@/lib/queries";
+import CareerPhasesSection from "@/components/resume/CareerPhasesSection";
+import ProjectsSection from "@/components/resume/ProjectsSection";
 
 interface Props {
     resume: Resume;
@@ -30,6 +32,15 @@ function matchesPhase(
 
 export default async function ResumePhases({ resume, activeJobField }: Props) {
     const basics = resume.basics ?? {};
+    const getLabel = (key: string) => {
+        const sec = (resume as any)[key];
+        const emoji = sec?.emoji || "➕";
+        const label =
+            defaultSectionLabels[key] ||
+            key.charAt(0).toUpperCase() + key.slice(1);
+        const showEmoji = sec?.showEmoji === true;
+        return showEmoji ? `${emoji} ${label}` : label;
+    };
 
     // Phase 1: web 경력
     const webWork = (resume.work?.entries ?? []).filter((w) =>
@@ -65,40 +76,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
         })
     );
 
-    // project sections markdown 렌더링
-    const projectSectionsMarkdown = await Promise.all(
-        gameProjects.map(async (proj) => {
-            if (!proj.sections) return [] as (string | null)[];
-            return Promise.all(
-                proj.sections.map((sec) =>
-                    sec.markdown ? renderMarkdown(sec.content) : null
-                )
-            );
-        })
-    );
-
-    // Fetch portfolio data for game projects that have a portfolioSlug
-    const gameSlugs = gameProjects
-        .map((p) => p.portfolioSlug)
-        .filter((s): s is string => Boolean(s));
-    const gamePortfolioItemsArr = await Promise.all(
-        gameSlugs.map((slug) => getPortfolioItem(slug))
-    );
-    const portfolioItemMap: Record<
-        string,
-        (typeof gamePortfolioItemsArr)[number]
-    > = Object.fromEntries(
-        gameSlugs.map((slug, i) => [slug, gamePortfolioItemsArr[i]])
-    );
-
-    // 커리어 단계 (phase 번호 오름차순 — Phase 1 좌측)
-    const careerPhases = [...(resume.careerPhases?.entries ?? [])].sort(
-        (a, b) => (a.phase ?? 0) - (b.phase ?? 0)
-    );
-    const hasCareerPhases = careerPhases.length > 0;
-
     const hasWebWork = webWork.length > 0;
-    const hasGameProjects = gameProjects.length > 0;
     const hasEducation = education.length > 0;
     const hasLanguages = languages.length > 0;
     const hasAwards = awards.length > 0;
@@ -181,268 +159,17 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                 ) : null}
             </header>
 
-            {/* 커리어 로드맵 — Phase 컬럼 타임라인 */}
-            {hasCareerPhases ? (
-                <section className="mb-10">
-                    <h2 className="mb-4 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                        커리어 로드맵
-                    </h2>
-                    {/* 수평 진행 바 */}
-                    <div className="mb-5 flex gap-1">
-                        {careerPhases.map((_, idx) => (
-                            <div
-                                key={idx}
-                                className="h-1.5 flex-1 rounded-full bg-(--color-accent)"
-                                style={{
-                                    opacity:
-                                        0.35 +
-                                        idx *
-                                            (0.65 /
-                                                Math.max(
-                                                    careerPhases.length - 1,
-                                                    1
-                                                )),
-                                }}
-                            />
-                        ))}
-                    </div>
-                    <div
-                        className="grid divide-x divide-(--color-border)"
-                        style={{
-                            gridTemplateColumns: `repeat(${careerPhases.length}, 1fr)`,
-                        }}
-                    >
-                        {careerPhases.map((phase, idx) => (
-                            <div
-                                key={idx}
-                                className={`${idx === 0 ? "pr-6" : idx === careerPhases.length - 1 ? "pl-6" : "px-6"}`}
-                            >
-                                <p className="mb-0.5 text-xs font-bold tracking-widest text-(--color-muted) uppercase">
-                                    PHASE {phase.phase}
-                                </p>
-                                {phase.startDate || phase.endDate ? (
-                                    <p
-                                        className="mb-2 text-xs text-(--color-muted)"
-                                        style={{
-                                            fontVariantNumeric: "tabular-nums",
-                                        }}
-                                    >
-                                        {phase.startDate?.slice(0, 7)} ~{" "}
-                                        {phase.endDate?.slice(0, 7) ||
-                                            "Present"}
-                                    </p>
-                                ) : null}
-                                {phase.name ? (
-                                    <h3 className="mb-1 text-base font-bold text-(--color-foreground)">
-                                        {phase.name}
-                                    </h3>
-                                ) : null}
-                                {phase.description ? (
-                                    <p className="mb-3 text-sm leading-relaxed whitespace-pre-line text-(--color-muted)">
-                                        {phase.description}
-                                    </p>
-                                ) : null}
-                                {phase.keywords && phase.keywords.length > 0 ? (
-                                    <div className="flex flex-wrap gap-1">
-                                        {phase.keywords.map((kw, kIdx) => (
-                                            <span
-                                                key={kIdx}
-                                                className="inline-block rounded bg-(--color-surface-subtle) px-2 py-0.5 text-xs text-(--color-muted)"
-                                            >
-                                                {kw}
-                                            </span>
-                                        ))}
-                                    </div>
-                                ) : null}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            ) : null}
+            <CareerPhasesSection
+                phases={resume.careerPhases?.entries ?? []}
+                label={getLabel("careerPhases")}
+            />
 
             {/* 게임 프로젝트 */}
-            {hasGameProjects && (
-                <div className="pt-8">
-                    <h2 className="mb-5 flex items-center gap-3 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                        프로젝트
-                        <span className="rounded-full bg-(--color-accent) px-3 py-0.5 text-xs font-bold tracking-widest text-(--color-on-accent) normal-case">
-                            게임 개발 전환
-                        </span>
-                    </h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        {gameProjects.map((proj, pIdx) => {
-                            const pf = proj.portfolioSlug
-                                ? portfolioItemMap[proj.portfolioSlug]
-                                : null;
-                            const pfData = pf?.data as
-                                | {
-                                      role?: string;
-                                      teamSize?: string | number;
-                                      github?: string;
-                                  }
-                                | undefined;
-                            const pfTags = pf?.tags as string[] | undefined;
-                            return (
-                                <div
-                                    key={pIdx}
-                                    className="group relative overflow-hidden rounded-lg border border-(--color-border) bg-(--color-surface-subtle) transition-colors hover:border-(--color-accent)"
-                                >
-                                    {proj.portfolioSlug ? (
-                                        <a
-                                            href={`/portfolio/${proj.portfolioSlug}`}
-                                            className="absolute inset-0 z-0"
-                                            aria-label={proj.name ?? ""}
-                                        />
-                                    ) : null}
-                                    {/* Thumbnail */}
-                                    {pf?.thumbnail ? (
-                                        <div className="relative aspect-video w-full overflow-hidden bg-(--color-border)">
-                                            <img
-                                                src={pf.thumbnail as string}
-                                                alt={proj.name ?? ""}
-                                                className="h-full w-full object-cover"
-                                                loading="lazy"
-                                            />
-                                        </div>
-                                    ) : null}
-                                    <div className="p-4">
-                                        {/* Name */}
-                                        {proj.name ? (
-                                            <h3 className="relative z-10 m-0 mb-1.5 text-base leading-snug font-bold text-(--color-foreground) transition-colors group-hover:text-(--color-accent)">
-                                                {proj.name}
-                                            </h3>
-                                        ) : null}
-                                        {/* Tags from portfolio */}
-                                        {pfTags && pfTags.length > 0 ? (
-                                            <div className="relative z-10 mb-2 flex flex-wrap gap-1">
-                                                {pfTags
-                                                    .slice(0, 5)
-                                                    .map((tag, tIdx) => (
-                                                        <span
-                                                            key={tIdx}
-                                                            className="inline-block rounded bg-(--color-tag-bg) px-[0.45em] py-[0.1em] text-xs leading-normal font-medium text-(--color-tag-fg)"
-                                                        >
-                                                            {tag}
-                                                        </span>
-                                                    ))}
-                                            </div>
-                                        ) : null}
-                                        {/* GitHub */}
-                                        {pfData?.github ? (
-                                            <div className="relative z-10 mb-2">
-                                                <a
-                                                    href={pfData.github}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1 rounded-full border border-(--color-border) px-2.5 py-0.5 text-xs font-medium text-(--color-foreground) transition-colors hover:border-(--color-accent) hover:text-(--color-accent)"
-                                                >
-                                                    GitHub
-                                                    <svg
-                                                        className="h-3 w-3"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                                                        />
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        ) : null}
-                                        {/* Role · Team size */}
-                                        {pfData?.role || pfData?.teamSize ? (
-                                            <p className="relative z-10 m-0 mb-1.5 text-xs text-(--color-muted)">
-                                                {[
-                                                    pfData.role,
-                                                    pfData.teamSize
-                                                        ? `${pfData.teamSize}인`
-                                                        : null,
-                                                ]
-                                                    .filter(Boolean)
-                                                    .join(" · ")}
-                                            </p>
-                                        ) : null}
-                                        {/* Date range */}
-                                        {(proj.startDate || proj.endDate) && (
-                                            <div
-                                                className="relative z-10 mb-2 text-sm text-(--color-muted)"
-                                                style={{
-                                                    fontVariantNumeric:
-                                                        "tabular-nums",
-                                                }}
-                                            >
-                                                {formatDateRange(
-                                                    proj.startDate,
-                                                    proj.endDate
-                                                )}
-                                            </div>
-                                        )}
-                                        {/* Content */}
-                                        {proj.sections &&
-                                        proj.sections.length > 0 ? (
-                                            proj.sections.map((sec, sIdx) => (
-                                                <div
-                                                    key={sIdx}
-                                                    className="mt-2"
-                                                >
-                                                    {sec.title ? (
-                                                        <p className="m-0 mb-0.5 text-base font-semibold tracking-wider text-(--color-muted) uppercase">
-                                                            {sec.title}
-                                                        </p>
-                                                    ) : null}
-                                                    {projectSectionsMarkdown[
-                                                        pIdx
-                                                    ]?.[sIdx] ? (
-                                                        <div
-                                                            className="resume-markdown m-0 text-base leading-[1.6] text-(--color-foreground)"
-                                                            dangerouslySetInnerHTML={{
-                                                                __html: projectSectionsMarkdown[
-                                                                    pIdx
-                                                                ][sIdx]!,
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
-                                                            {sec.content}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <>
-                                                {proj.description ? (
-                                                    <p className="m-0 text-base leading-[1.6] whitespace-pre-wrap text-(--color-foreground)">
-                                                        {proj.description}
-                                                    </p>
-                                                ) : null}
-                                                {proj.highlights &&
-                                                proj.highlights.length > 0 ? (
-                                                    <ul className="mt-1 mb-0 pl-2 text-base text-(--color-foreground)">
-                                                        {proj.highlights.map(
-                                                            (h, hIdx) => (
-                                                                <li
-                                                                    key={hIdx}
-                                                                    className="mb-[0.2em]"
-                                                                >
-                                                                    {`• ${h}`}
-                                                                </li>
-                                                            )
-                                                        )}
-                                                    </ul>
-                                                ) : null}
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
+            <ProjectsSection
+                projects={gameProjects}
+                label={getLabel("projects")}
+                badge="게임 개발 전환"
+            />
 
             {/* 웹 경력 */}
             {hasWebWork && (
@@ -450,7 +177,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                     <div className="grid grid-cols-1 divide-y divide-(--color-border)">
                         <div className="pt-8">
                             <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                                경력
+                                {getLabel("work")}
                             </h2>
                             <div className="relative ml-2 flex flex-col gap-7 border-l-2 border-(--color-border) pl-6">
                                 {webWork.map((w, wIdx) => (
@@ -566,6 +293,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
                     activeJobField={activeJobField}
                     works={resume.work?.entries ?? []}
                     projects={resume.projects?.entries ?? []}
+                    label={getLabel("skills")}
                     defaultView={
                         (resume.skills?.defaultView ?? "by-job-field") as any
                     }
@@ -576,7 +304,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
             {hasEducation ? (
                 <section className="mb-10">
                     <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                        학력
+                        {getLabel("education")}
                     </h2>
                     <div>
                         {education.map((edu, idx) => (
@@ -650,7 +378,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
             {hasLanguages ? (
                 <section className="mb-10">
                     <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                        언어
+                        {getLabel("languages")}
                     </h2>
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
                         {languages.map((lang, idx) => (
@@ -678,7 +406,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
             {hasAwards ? (
                 <section className="mb-10">
                     <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                        수상
+                        {getLabel("awards")}
                     </h2>
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
                         {awards.map((award, idx) => (
@@ -721,7 +449,7 @@ export default async function ResumePhases({ resume, activeJobField }: Props) {
             {hasCertificates ? (
                 <section className="mb-10">
                     <h2 className="mb-5 border-b border-(--color-border) pb-1.5 text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                        자격증
+                        {getLabel("certificates")}
                     </h2>
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
                         {certificates.map((cert, idx) => (

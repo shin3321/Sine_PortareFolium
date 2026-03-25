@@ -555,13 +555,59 @@ export default function ResumePanel() {
             {/* 커리어 타임라인 — phases 디자인 전용 */}
             {resumeLayout === "phases" ? (
                 <section className="space-y-4 rounded-xl border border-(--color-accent) bg-(--color-surface) p-6">
+                    <div className="w-fit rounded-full bg-(--color-accent) px-2 py-0.5 text-sm font-medium text-(--color-on-accent)">
+                        Phases 전용
+                    </div>
                     <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-(--color-foreground)">
-                            커리어 타임라인
-                            <span className="ml-2 rounded-full bg-(--color-accent) px-2 py-0.5 text-xs font-medium text-(--color-on-accent)">
-                                Phases 전용
-                            </span>
-                        </h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="flex items-center text-xl font-bold text-(--color-foreground)">
+                                <SectionEmojiSelector
+                                    value={resumeData.careerPhases?.emoji || ""}
+                                    onChange={(v) => {
+                                        setResumeData({
+                                            ...resumeData,
+                                            careerPhases: {
+                                                ...(resumeData.careerPhases || {
+                                                    showEmoji: false,
+                                                    emoji: "✔️",
+                                                    entries: [],
+                                                }),
+                                                emoji: v,
+                                            },
+                                        });
+                                    }}
+                                />
+                                커리어 타임라인
+                            </h3>
+                            <div className="ml-4 flex items-center gap-2">
+                                <Switch
+                                    id="show-emojis-careerPhases"
+                                    checked={
+                                        resumeData.careerPhases?.showEmoji ===
+                                        true
+                                    }
+                                    onCheckedChange={(checked) =>
+                                        setResumeData({
+                                            ...resumeData,
+                                            careerPhases: {
+                                                ...(resumeData.careerPhases || {
+                                                    showEmoji: false,
+                                                    emoji: "✔️",
+                                                    entries: [],
+                                                }),
+                                                showEmoji: checked,
+                                            },
+                                        })
+                                    }
+                                />
+                                <label
+                                    htmlFor="show-emojis-careerPhases"
+                                    className="cursor-pointer text-sm font-medium text-(--color-muted) select-none"
+                                >
+                                    이모지 표시
+                                </label>
+                            </div>
+                        </div>
                         <button
                             className="rounded-lg bg-(--color-accent) px-3 py-1.5 text-sm font-bold whitespace-nowrap text-(--color-on-accent)"
                             onClick={() => {

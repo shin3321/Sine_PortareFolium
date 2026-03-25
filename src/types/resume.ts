@@ -3,6 +3,21 @@
  * @see https://docs.jsonresume.org/schema
  */
 
+export const defaultSectionLabels: Record<string, string> = {
+    careerPhases: "커리어 타임라인",
+    work: "경력",
+    skills: "기술",
+    education: "학력",
+    projects: "프로젝트",
+    volunteer: "봉사 활동",
+    awards: "수상",
+    certificates: "자격증",
+    publications: "출판물",
+    languages: "언어",
+    interests: "관심사",
+    references: "추천인",
+};
+
 export interface ResumeLocation {
     address?: string;
     postalCode?: string;
@@ -166,7 +181,7 @@ export interface ResumeProject {
     sections?: ResumeProjectSection[];
 }
 
-// 커리어 단계 (커리어 로드맵 섹션용)
+// 커리어 단계 (커리어 타임라인 섹션용)
 export interface ResumeCareerPhase {
     phase?: number;
     startDate?: string;

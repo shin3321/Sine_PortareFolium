@@ -178,6 +178,7 @@ interface Props {
     activeJobField?: string;
     works: ResumeWork[];
     projects: ResumeProject[];
+    label?: string;
     defaultView?: SkillsView;
 }
 
@@ -186,6 +187,7 @@ export default function SkillsSection({
     activeJobField,
     works,
     projects,
+    label = "기술",
     defaultView,
 }: Props) {
     const [skillsView, setSkillsView] = useState<SkillsView>(
@@ -196,7 +198,7 @@ export default function SkillsSection({
         <section className="mb-10">
             <div className="mb-5 flex items-center justify-between border-b border-(--color-border) pb-1.5">
                 <h2 className="text-xl font-bold tracking-widest text-(--color-accent) uppercase">
-                    기술
+                    {label}
                 </h2>
                 <select
                     value={skillsView}

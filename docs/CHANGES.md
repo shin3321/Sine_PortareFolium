@@ -1,5 +1,19 @@
 # CHANGES
 
+## 2026-03-25
+
+### Feat: ProjectsSection 컴포넌트 추출 및 전 이력서 테마 적용 (v0.7.57)
+
+- `src/components/resume/ProjectsSection.tsx` 신규 생성: 이력서 프로젝트 카드 그리드를 독립 async Server Component로 추출. markdown 렌더링·portfolio fetch 자체 처리. `label`, `badge` props 지원.
+- `ResumeModern.tsx`, `ResumeClassic.tsx`, `ResumeMinimal.tsx`: 인라인 projects 섹션 제거 → `<ProjectsSection>` 사용. `projectsMarkdown`, `portfolioItemMap` 관련 코드 정리.
+- `ResumePhases.tsx`: 인라인 게임 프로젝트 섹션 제거 → `<ProjectsSection badge="게임 개발 전환">` 사용. `projectSectionsMarkdown`, `portfolioItemMap` 관련 코드 정리.
+
+### Feat: CareerPhasesSection 컴포넌트 추출 및 전 이력서 테마 적용 (v0.7.56)
+
+- `src/components/resume/CareerPhasesSection.tsx` 신규 생성: `ResumePhases`의 커리어 타임라인 인라인 JSX를 독립 컴포넌트로 추출. `ResumeCareerPhase[]` props 수신, 내부에서 phase 번호 정렬 처리.
+- `ResumePhases.tsx`: 인라인 커리어 타임라인 섹션 제거 → `<CareerPhasesSection>` 컴포넌트 사용으로 교체.
+- `ResumeModern.tsx`, `ResumeMinimal.tsx`, `ResumeClassic.tsx`: `CareerPhasesSection` import 추가 및 sections 루프 이전에 렌더링 삽입 (기존에 careerPhases 필터 아웃으로 미표시되던 문제 해소).
+
 ## 2026-03-24
 
 ### Feat: Portfolio 상세 페이지 메타데이터 ref.png 스타일 리디자인 (v0.7.53)
@@ -70,7 +84,7 @@
 
 ### Fix: ResumePhases 경력·프로젝트 섹션 좁은 화면 반응형 레이아웃 (v0.7.41)
 
-- `src/components/resume/ResumePhases.tsx`: `경력`·`프로젝트` 2컬럼 그리드를 `md` 미만에서 단일 컬럼 수직 스택으로 전환. `divide-x` → `md:divide-x` + `divide-y md:divide-y-0` 구분선 처리. 컬럼 패딩 `pr-8`/`pl-8` → `pb-8 md:pb-0 md:pr-8` / `pt-8 md:pt-0 md:pl-8` 조정. 커리어 로드맵 레이아웃은 변경 없음.
+- `src/components/resume/ResumePhases.tsx`: `경력`·`프로젝트` 2컬럼 그리드를 `md` 미만에서 단일 컬럼 수직 스택으로 전환. `divide-x` → `md:divide-x` + `divide-y md:divide-y-0` 구분선 처리. 컬럼 패딩 `pr-8`/`pl-8` → `pb-8 md:pb-0 md:pr-8` / `pt-8 md:pt-0 md:pl-8` 조정. 커리어 타임라인 레이아웃은 변경 없음.
 
 ## 2026-03-24
 
@@ -150,10 +164,10 @@
 - `src/components/resume/SkillsSection.tsx` (신규): Phases 이력서 전용 스킬 렌더러. "직무별"/"카테고리별" 뷰 토글 드롭다운. 직무별 뷰: `workRef`/`projectRef` 기준 그룹화, active jobField 그룹 우선 노출. `workRef` composite key `"Position @ Company"` 형식으로 다중 포지션 구분.
 - `src/components/resume/ResumePhases.tsx`: `activeJobField` prop 추가, `<SkillsSection />` 컴포넌트 사용으로 교체.
 
-### Feat: Phases 이력서 커리어 로드맵 섹션 추가 (v0.7.22)
+### Feat: Phases 이력서 커리어 타임라인 섹션 추가 (v0.7.22)
 
 - `src/types/resume.ts`: `ResumeCareerPhase` 인터페이스 추가. `Resume`에 `careerPhases` 필드 추가
-- `src/components/resume/ResumePhases.tsx`: 커리어 로드맵 섹션 추가 (흰 배경 카드, Phase 컬럼 타임라인, phase 번호 내림차순 정렬)
+- `src/components/resume/ResumePhases.tsx`: 커리어 타임라인 섹션 추가 (흰 배경 카드, Phase 컬럼 타임라인, phase 번호 내림차순 정렬)
 
 ### Feat: 프롬프트 라이브러리 포트폴리오 프롬프트 추가 (v0.7.21)
 
