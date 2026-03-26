@@ -34,6 +34,7 @@ function getTextColor(tailwindName: string): string {
     return light ? "var(--color-foreground)" : "rgba(255,255,255,0.95)";
 }
 
+// MDX directive 호환 레거시 어댑터 — inline hex style로 색상 적용
 export default function FoliumTable({
     columns,
     rows,
