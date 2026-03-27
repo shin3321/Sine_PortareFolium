@@ -499,7 +499,7 @@ export default function ResumePanel() {
                         <img
                             src={resumeData.basics.image}
                             alt="Profile"
-                            className="h-48 w-48 shrink-0 rounded-full border border-(--color-border) object-cover"
+                            className="tablet:h-48 tablet:w-48 h-32 w-32 shrink-0 rounded-full border border-(--color-border) object-cover"
                         />
                     )}
                     <div className="flex-1">
