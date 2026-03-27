@@ -13,6 +13,7 @@ interface AdminHeaderProps {
     timeLeft: number;
     onLogout: () => void;
     onCommandOpen?: () => void;
+    onMenuOpen?: () => void;
 }
 
 // 남은 시간을 MM:SS 형식으로 변환
@@ -28,10 +29,32 @@ export default function AdminHeader({
     timeLeft,
     onLogout,
     onCommandOpen,
+    onMenuOpen,
 }: AdminHeaderProps) {
     return (
         <header className="flex h-14 items-center justify-between border-b border-(--color-border) bg-(--color-surface) px-6">
             <div className="flex items-center gap-4">
+                {onMenuOpen && (
+                    <button
+                        onClick={onMenuOpen}
+                        className="tablet:hidden rounded-md p-1.5 text-(--color-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-foreground)"
+                        aria-label="메뉴 열기"
+                    >
+                        <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 6h16M4 12h16M4 18h16"
+                            />
+                        </svg>
+                    </button>
+                )}
                 <a
                     href="/"
                     className="flex items-center gap-1.5 text-sm font-medium text-(--color-muted) transition-colors hover:text-(--color-foreground)"
