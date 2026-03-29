@@ -1,5 +1,25 @@
 # CHANGES
 
+## v0.9.11 (2026-03-29)
+
+### Feat: /ship 커스텀 커맨드 스킬 추가
+
+- `.claude/commands/ship.md`: `/ship` 슬래시 커맨드 추가. 커밋 메시지 한국어 포맷, 버전 범프, PR.md/CHANGES.md 업데이트, 테스트 실행 등 커밋 워크플로우 자동화 규칙 정의.
+
+## v0.9.10 (2026-03-29)
+
+### Fix: ThemeToggle 모바일 클릭 토글 + 드롭다운 좌측 정렬 (v0.9.10)
+
+- `src/components/ThemeToggle.tsx`: 버튼에 `onClick` 토글 추가 (모바일 터치 지원). 드롭다운 위치 `right-0` → `left-0` 좌측 정렬.
+
+## v0.9.9 (2026-03-29)
+
+### Fix: z-index 계층 정리 — 사이드바 우선 + ThemeToggle 드롭다운 (v0.9.9)
+
+- `src/components/ThemeToggle.tsx`: 드롭다운 메뉴에 `z-35` 추가
+- `src/components/admin/RichMarkdownEditor.tsx`: 전체화면 툴바 `z-50` → `z-30` 하향
+- `src/components/tiptap-ui-primitive/toolbar/toolbar.scss`: fixed 툴바 `z-index: 50` → `30` 하향 (사이드바 z-40 우선)
+
 ## v0.9.8 (2026-03-28)
 
 ### Feat: Admin 패널 모바일 레이아웃 + 사이트 링크 사이드바 이동 (v0.9.8)
