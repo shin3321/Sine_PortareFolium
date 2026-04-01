@@ -535,10 +535,10 @@ export default function AboutPanel() {
                 {/* Value Pillars */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-(--color-foreground)">
+                        <h4 className="text-base font-semibold text-(--color-foreground)">
                             Value Pillars (3대 핵심 가치)
                         </h4>
-                        <span className="text-xs text-(--color-muted)">
+                        <span className="text-sm text-(--color-muted)">
                             {valuePillars.length} / 3
                         </span>
                     </div>
@@ -548,7 +548,7 @@ export default function AboutPanel() {
                             className="rounded-lg border border-(--color-border) bg-(--color-surface-subtle) p-4"
                         >
                             <div className="mb-2 flex items-center justify-between">
-                                <span className="text-xs font-bold text-(--color-accent)">
+                                <span className="text-sm font-bold text-(--color-accent)">
                                     Pillar {idx + 1}
                                 </span>
                                 <button
@@ -563,59 +563,77 @@ export default function AboutPanel() {
                                     <Trash2 size={12} />
                                 </button>
                             </div>
-                            <div className="flex flex-col gap-2">
-                                <input
-                                    value={pillar.label}
-                                    onChange={(e) =>
-                                        setValuePillars((prev) =>
-                                            prev.map((p, i) =>
-                                                i === idx
-                                                    ? {
-                                                          ...p,
-                                                          label: e.target.value,
-                                                      }
-                                                    : p
+                            <div className="flex flex-col gap-3">
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-(--color-muted)">
+                                        Keyword
+                                    </label>
+                                    <input
+                                        value={pillar.label}
+                                        onChange={(e) =>
+                                            setValuePillars((prev) =>
+                                                prev.map((p, i) =>
+                                                    i === idx
+                                                        ? {
+                                                              ...p,
+                                                              label: e.target
+                                                                  .value,
+                                                          }
+                                                        : p
+                                                )
                                             )
-                                        )
-                                    }
-                                    placeholder="짧은 키워드"
-                                    className={inputCls}
-                                />
-                                <input
-                                    value={pillar.sub}
-                                    onChange={(e) =>
-                                        setValuePillars((prev) =>
-                                            prev.map((p, i) =>
-                                                i === idx
-                                                    ? {
-                                                          ...p,
-                                                          sub: e.target.value,
-                                                      }
-                                                    : p
+                                        }
+                                        placeholder="짧은 키워드"
+                                        className={inputCls}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-(--color-muted)">
+                                        Sub
+                                    </label>
+                                    <input
+                                        value={pillar.sub}
+                                        onChange={(e) =>
+                                            setValuePillars((prev) =>
+                                                prev.map((p, i) =>
+                                                    i === idx
+                                                        ? {
+                                                              ...p,
+                                                              sub: e.target
+                                                                  .value,
+                                                          }
+                                                        : p
+                                                )
                                             )
-                                        )
-                                    }
-                                    placeholder="부제"
-                                    className={inputCls}
-                                />
-                                <input
-                                    value={pillar.description}
-                                    onChange={(e) =>
-                                        setValuePillars((prev) =>
-                                            prev.map((p, i) =>
-                                                i === idx
-                                                    ? {
-                                                          ...p,
-                                                          description:
-                                                              e.target.value,
-                                                      }
-                                                    : p
+                                        }
+                                        placeholder="부제"
+                                        className={inputCls}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-(--color-muted)">
+                                        Description
+                                    </label>
+                                    <input
+                                        value={pillar.description}
+                                        onChange={(e) =>
+                                            setValuePillars((prev) =>
+                                                prev.map((p, i) =>
+                                                    i === idx
+                                                        ? {
+                                                              ...p,
+                                                              description:
+                                                                  e.target
+                                                                      .value,
+                                                          }
+                                                        : p
+                                                )
                                             )
-                                        )
-                                    }
-                                    placeholder="설명"
-                                    className={inputCls}
-                                />
+                                        }
+                                        placeholder="설명"
+                                        className={inputCls}
+                                    />
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -637,10 +655,10 @@ export default function AboutPanel() {
                 {/* Core Values */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-(--color-foreground)">
+                        <h4 className="text-base font-semibold text-(--color-foreground)">
                             Core Values (핵심 역량)
                         </h4>
-                        <span className="text-xs text-(--color-muted)">
+                        <span className="text-sm text-(--color-muted)">
                             {coreValues.length} / 4
                         </span>
                     </div>
@@ -650,7 +668,7 @@ export default function AboutPanel() {
                             className="rounded-lg border border-(--color-border) bg-(--color-surface-subtle) p-4"
                         >
                             <div className="mb-2 flex items-center justify-between">
-                                <span className="text-xs font-bold text-(--color-accent)">
+                                <span className="text-sm font-bold text-(--color-accent)">
                                     Value {idx + 1}
                                 </span>
                                 <button
@@ -665,42 +683,54 @@ export default function AboutPanel() {
                                     <Trash2 size={12} />
                                 </button>
                             </div>
-                            <div className="flex flex-col gap-2">
-                                <input
-                                    value={val.title}
-                                    onChange={(e) =>
-                                        setCoreValues((prev) =>
-                                            prev.map((v, i) =>
-                                                i === idx
-                                                    ? {
-                                                          ...v,
-                                                          title: e.target.value,
-                                                      }
-                                                    : v
+                            <div className="flex flex-col gap-3">
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-(--color-muted)">
+                                        Title
+                                    </label>
+                                    <input
+                                        value={val.title}
+                                        onChange={(e) =>
+                                            setCoreValues((prev) =>
+                                                prev.map((v, i) =>
+                                                    i === idx
+                                                        ? {
+                                                              ...v,
+                                                              title: e.target
+                                                                  .value,
+                                                          }
+                                                        : v
+                                                )
                                             )
-                                        )
-                                    }
-                                    placeholder="제목"
-                                    className={inputCls}
-                                />
-                                <input
-                                    value={val.description}
-                                    onChange={(e) =>
-                                        setCoreValues((prev) =>
-                                            prev.map((v, i) =>
-                                                i === idx
-                                                    ? {
-                                                          ...v,
-                                                          description:
-                                                              e.target.value,
-                                                      }
-                                                    : v
+                                        }
+                                        placeholder="제목"
+                                        className={inputCls}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-(--color-muted)">
+                                        Description
+                                    </label>
+                                    <input
+                                        value={val.description}
+                                        onChange={(e) =>
+                                            setCoreValues((prev) =>
+                                                prev.map((v, i) =>
+                                                    i === idx
+                                                        ? {
+                                                              ...v,
+                                                              description:
+                                                                  e.target
+                                                                      .value,
+                                                          }
+                                                        : v
+                                                )
                                             )
-                                        )
-                                    }
-                                    placeholder="설명"
-                                    className={inputCls}
-                                />
+                                        }
+                                        placeholder="설명"
+                                        className={inputCls}
+                                    />
+                                </div>
                             </div>
                         </div>
                     ))}
