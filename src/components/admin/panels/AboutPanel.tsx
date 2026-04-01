@@ -12,7 +12,9 @@ import type {
     AboutData,
     AboutSectionKey,
     CompetencySectionKey,
+    CoreValue,
     FieldIntroduction,
+    ValuePillar,
 } from "@/types/about";
 import {
     ABOUT_SECTION_KEYS,
@@ -52,6 +54,10 @@ export default function AboutPanel() {
         type: "error" | "success";
         msg: string;
     } | null>(null);
+
+    // 랜딩 페이지 히어로 섹션
+    const [valuePillars, setValuePillars] = useState<ValuePillar[]>([]);
+    const [coreValues, setCoreValues] = useState<CoreValue[]>([]);
 
     // Job Field별 소개
     const [jobFields, setJobFields] = useState<JobFieldItem[]>([]);
@@ -119,6 +125,8 @@ export default function AboutPanel() {
                             );
                     });
                     setIntroductions(d.introductions ?? {});
+                    setValuePillars(d.valuePillars ?? []);
+                    setCoreValues(d.coreValues ?? []);
                 }
                 // resume_data.basics.image를 프로필 이미지 단일 출처로 사용
                 if (resumeRow) {
@@ -219,6 +227,8 @@ export default function AboutPanel() {
                 Object.keys(introductions).length > 0
                     ? introductions
                     : undefined,
+            valuePillars: valuePillars.length > 0 ? valuePillars : undefined,
+            coreValues: coreValues.length > 0 ? coreValues : undefined,
             sections: Object.fromEntries(
                 ABOUT_SECTION_KEYS.map((k) => [
                     k,
@@ -517,6 +527,167 @@ export default function AboutPanel() {
                         value={linkedin}
                         onChange={(e) => setLinkedin(e.target.value)}
                     />
+                </div>
+            </section>
+
+            <Separator />
+
+            {/* 랜딩 페이지 히어로 섹션 */}
+            <section className="space-y-4">
+                <h3 className="text-lg font-semibold text-(--color-foreground)">
+                    Landing Page Hero Section
+                </h3>
+
+                {/* Value Pillars */}
+                <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-(--color-foreground)">
+                        Value Pillars (3대 핵심 가치)
+                    </h4>
+                    {valuePillars.map((pillar, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                            <div className="flex flex-1 flex-col gap-2">
+                                <Input
+                                    value={pillar.label}
+                                    onChange={(e) =>
+                                        setValuePillars((prev) =>
+                                            prev.map((p, i) =>
+                                                i === idx
+                                                    ? {
+                                                          ...p,
+                                                          label: e.target.value,
+                                                      }
+                                                    : p
+                                            )
+                                        )
+                                    }
+                                    placeholder="짧은 키워드"
+                                />
+                                <Input
+                                    value={pillar.sub}
+                                    onChange={(e) =>
+                                        setValuePillars((prev) =>
+                                            prev.map((p, i) =>
+                                                i === idx
+                                                    ? {
+                                                          ...p,
+                                                          sub: e.target.value,
+                                                      }
+                                                    : p
+                                            )
+                                        )
+                                    }
+                                    placeholder="부제"
+                                />
+                                <Input
+                                    value={pillar.description}
+                                    onChange={(e) =>
+                                        setValuePillars((prev) =>
+                                            prev.map((p, i) =>
+                                                i === idx
+                                                    ? {
+                                                          ...p,
+                                                          description:
+                                                              e.target.value,
+                                                      }
+                                                    : p
+                                            )
+                                        )
+                                    }
+                                    placeholder="설명"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setValuePillars((prev) =>
+                                        prev.filter((_, i) => i !== idx)
+                                    )
+                                }
+                                className="mt-1 shrink-0 rounded-lg bg-red-600 p-2 text-white"
+                            >
+                                <Trash2 size={14} />
+                            </button>
+                        </div>
+                    ))}
+                    <Button
+                        onClick={() =>
+                            setValuePillars((prev) => [
+                                ...prev,
+                                { label: "", sub: "", description: "" },
+                            ])
+                        }
+                        className="rounded-lg bg-(--color-accent) px-4 py-2 text-sm font-medium whitespace-nowrap text-(--color-on-accent)"
+                    >
+                        추가
+                    </Button>
+                </div>
+
+                {/* Core Values */}
+                <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-(--color-foreground)">
+                        Core Values (핵심 역량)
+                    </h4>
+                    {coreValues.map((val, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                            <div className="flex flex-1 flex-col gap-2">
+                                <Input
+                                    value={val.title}
+                                    onChange={(e) =>
+                                        setCoreValues((prev) =>
+                                            prev.map((v, i) =>
+                                                i === idx
+                                                    ? {
+                                                          ...v,
+                                                          title: e.target.value,
+                                                      }
+                                                    : v
+                                            )
+                                        )
+                                    }
+                                    placeholder="제목"
+                                />
+                                <Input
+                                    value={val.description}
+                                    onChange={(e) =>
+                                        setCoreValues((prev) =>
+                                            prev.map((v, i) =>
+                                                i === idx
+                                                    ? {
+                                                          ...v,
+                                                          description:
+                                                              e.target.value,
+                                                      }
+                                                    : v
+                                            )
+                                        )
+                                    }
+                                    placeholder="설명"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setCoreValues((prev) =>
+                                        prev.filter((_, i) => i !== idx)
+                                    )
+                                }
+                                className="mt-1 shrink-0 rounded-lg bg-red-600 p-2 text-white"
+                            >
+                                <Trash2 size={14} />
+                            </button>
+                        </div>
+                    ))}
+                    <Button
+                        onClick={() =>
+                            setCoreValues((prev) => [
+                                ...prev,
+                                { title: "", description: "" },
+                            ])
+                        }
+                        className="rounded-lg bg-(--color-accent) px-4 py-2 text-sm font-medium whitespace-nowrap text-(--color-on-accent)"
+                    >
+                        추가
+                    </Button>
                 </div>
             </section>
 
