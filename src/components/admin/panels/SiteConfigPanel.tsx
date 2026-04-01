@@ -723,9 +723,6 @@ export default function SiteConfigPanel() {
 
             <Separator />
 
-            {/* 하단 여백 (sticky footer 공간 확보) */}
-            <div className="h-20" />
-
             {/* Sticky 저장 바 */}
             <div className="tablet:-mx-6 laptop:-mx-8 sticky bottom-0 z-50 -mx-4 border-t border-(--color-border) bg-(--color-surface)/90 px-6 py-3 backdrop-blur-sm">
                 <div className="mx-auto flex items-center justify-between gap-3">

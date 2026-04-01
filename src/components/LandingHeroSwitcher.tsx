@@ -78,7 +78,7 @@ export default function LandingHero({
                             <div className="absolute -inset-2 rounded-xl bg-(--color-accent) opacity-[0.12] blur-lg" />
                             <img
                                 src={profileImage}
-                                alt=""
+                                alt={heroName}
                                 width={320}
                                 height={320}
                                 className="tablet:h-80 tablet:w-80 relative h-64 w-64 rounded-xl border-2 border-(--color-accent)/20 object-cover transition-all hover:border-(--color-accent)/40"
