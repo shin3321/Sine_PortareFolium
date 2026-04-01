@@ -553,12 +553,18 @@ export default function AboutPanel() {
                                 </span>
                                 <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
+                                        if (
+                                            !confirm(
+                                                `Pillar ${idx + 1}을 삭제하시겠습니까?`
+                                            )
+                                        )
+                                            return;
                                         setValuePillars((prev) =>
                                             prev.filter((_, i) => i !== idx)
-                                        )
-                                    }
-                                    className="shrink-0 rounded-lg bg-red-600 p-1.5 text-white"
+                                        );
+                                    }}
+                                    className="shrink-0 cursor-pointer rounded-lg bg-red-600 p-1.5 text-white"
                                 >
                                     <Trash2 size={12} />
                                 </button>
@@ -673,12 +679,18 @@ export default function AboutPanel() {
                                 </span>
                                 <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
+                                        if (
+                                            !confirm(
+                                                `Value ${idx + 1}을 삭제하시겠습니까?`
+                                            )
+                                        )
+                                            return;
                                         setCoreValues((prev) =>
                                             prev.filter((_, i) => i !== idx)
-                                        )
-                                    }
-                                    className="shrink-0 rounded-lg bg-red-600 p-1.5 text-white"
+                                        );
+                                    }}
+                                    className="shrink-0 cursor-pointer rounded-lg bg-red-600 p-1.5 text-white"
                                 >
                                     <Trash2 size={12} />
                                 </button>
