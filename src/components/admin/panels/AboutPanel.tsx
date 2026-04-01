@@ -501,6 +501,7 @@ export default function AboutPanel() {
                     <Input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        className={`${inputCls} shadow-none`}
                     />
                 </div>
                 <div>
@@ -510,6 +511,7 @@ export default function AboutPanel() {
                     <Input
                         value={github}
                         onChange={(e) => setGithub(e.target.value)}
+                        className={`${inputCls} shadow-none`}
                     />
                 </div>
                 <div>
@@ -519,6 +521,7 @@ export default function AboutPanel() {
                     <Input
                         value={linkedin}
                         onChange={(e) => setLinkedin(e.target.value)}
+                        className={`${inputCls} shadow-none`}
                     />
                 </div>
             </section>
