@@ -1,5 +1,12 @@
 # CHANGES
 
+## v0.10.23 (2026-04-09)
+
+### Refactor: AdminSaveBar portal 방식으로 전환 — main 패딩 완전 복원
+
+- `src/components/admin/AdminSaveBar.tsx`: `createPortal`로 `#admin-save-bar-slot`에 렌더링 — 부정 마진 완전 제거
+- `src/components/admin/AdminDashboard.tsx`: `<main>` 전체 패딩 복원 (`p-4/p-6/p-8`) + `#admin-save-bar-slot` div 추가
+
 ## v0.10.22 (2026-04-09)
 
 ### Refactor: AdminSaveBar 공통 컴포넌트 추출

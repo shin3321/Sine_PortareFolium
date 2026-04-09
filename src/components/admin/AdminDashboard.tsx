@@ -163,46 +163,50 @@ export default function AdminDashboard() {
                     visible={sidebarVisible}
                 />
 
-                <main className="tablet:px-6 tablet:pt-6 laptop:px-8 laptop:pt-8 flex-1 overflow-y-auto px-4 pt-4">
-                    {activeTab === "posts" && (
-                        <PostsPanel
-                            key={`posts-${tabKey}`}
-                            editPath={editPath}
-                            onEditPathChange={handleEditPathChange}
-                        />
-                    )}
-                    {activeTab === "portfolio" && (
-                        <PortfolioPanel
-                            key={`portfolio-${tabKey}`}
-                            editPath={editPath}
-                            onEditPathChange={handleEditPathChange}
-                        />
-                    )}
-                    {activeTab === "tags" && (
-                        <TagsPanel key={`tags-${tabKey}`} />
-                    )}
-                    {activeTab === "about" && (
-                        <AboutPanel key={`about-${tabKey}`} />
-                    )}
-                    {activeTab === "resume" && (
-                        <ResumePanel key={`resume-${tabKey}`} />
-                    )}
-                    {activeTab === "migrations" && (
-                        <MigrationsPanel key={`migrations-${tabKey}`} />
-                    )}
-                    {activeTab === "snapshots" && (
-                        <SnapshotsPanel key={`snapshots-${tabKey}`} />
-                    )}
-                    {activeTab === "agent-tokens" && (
-                        <AgentTokensPanel key={`agent-tokens-${tabKey}`} />
-                    )}
-                    {activeTab === "prompts" && (
-                        <PromptLibraryPanel key={`prompts-${tabKey}`} />
-                    )}
-                    {activeTab === "config" && (
-                        <SiteConfigPanel key={`config-${tabKey}`} />
-                    )}
-                </main>
+                <div className="flex flex-1 flex-col overflow-hidden">
+                    <main className="tablet:p-6 laptop:p-8 flex-1 overflow-y-auto p-4">
+                        {activeTab === "posts" && (
+                            <PostsPanel
+                                key={`posts-${tabKey}`}
+                                editPath={editPath}
+                                onEditPathChange={handleEditPathChange}
+                            />
+                        )}
+                        {activeTab === "portfolio" && (
+                            <PortfolioPanel
+                                key={`portfolio-${tabKey}`}
+                                editPath={editPath}
+                                onEditPathChange={handleEditPathChange}
+                            />
+                        )}
+                        {activeTab === "tags" && (
+                            <TagsPanel key={`tags-${tabKey}`} />
+                        )}
+                        {activeTab === "about" && (
+                            <AboutPanel key={`about-${tabKey}`} />
+                        )}
+                        {activeTab === "resume" && (
+                            <ResumePanel key={`resume-${tabKey}`} />
+                        )}
+                        {activeTab === "migrations" && (
+                            <MigrationsPanel key={`migrations-${tabKey}`} />
+                        )}
+                        {activeTab === "snapshots" && (
+                            <SnapshotsPanel key={`snapshots-${tabKey}`} />
+                        )}
+                        {activeTab === "agent-tokens" && (
+                            <AgentTokensPanel key={`agent-tokens-${tabKey}`} />
+                        )}
+                        {activeTab === "prompts" && (
+                            <PromptLibraryPanel key={`prompts-${tabKey}`} />
+                        )}
+                        {activeTab === "config" && (
+                            <SiteConfigPanel key={`config-${tabKey}`} />
+                        )}
+                    </main>
+                    {/* 저장 바 슬롯: AdminSaveBar portal이 여기 렌더링 */}
+                    <div id="admin-save-bar-slot" />
+                </div>
             </div>
 
             <CommandPalette
