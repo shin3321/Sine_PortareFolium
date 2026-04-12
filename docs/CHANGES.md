@@ -1,5 +1,52 @@
 # CHANGES
 
+## v0.11.2 (2026-04-12)
+
+### Feat: 수동 체크리스트 E2E 자동화 — PDF grid 검증 + 콘텐츠 렌더링
+
+- `e2e/authenticated/pdf-export.spec.ts`: 프로젝트 카드 grid 2열 레이아웃 유지 검증 테스트 추가 (7 테스트)
+- `e2e/content-rendering.spec.ts`: 블로그 콘텐츠 렌더링 5개 테스트 — Shiki 코드 블록, 이미지 lazy loading, 목차 (TOC), Mermaid 다이어그램, KaTeX 수식
+- `docs/TEST.md`: 자동화된 항목을 수동 체크리스트에서 제거, E2E 목록에 새 테스트 문서화
+
+## v0.11.1 (2026-04-11)
+
+### Feat: 인증 필요 E2E 테스트 — PDF Export 프리뷰 검증
+
+- `e2e/auth.setup.ts`: Supabase 로그인 + `storageState` 저장 (`.auth/user.json`)
+- `e2e/authenticated/pdf-export.spec.ts`: Resume/Portfolio PDF export 6개 테스트
+    - PDF 내보내기 버튼 표시 (인증 상태)
+    - 프리뷰 모달 열림 + 사이드바 UI (Color Scheme, Pages, 다운로드 버튼)
+    - 페이지 구분선 (dashed line) 존재 확인
+    - 컬러 스킴 변경 시 페이지 수 유지 확인
+    - ESC 키로 모달 닫기
+    - Portfolio 페이지 PDF export
+- `playwright.config.ts`: `setup` project + `authenticated-*` projects 추가 (Chromium/Firefox/WebKit)
+- `.gitignore`: `.auth/` 디렉토리 제외
+- `.github/workflows/e2e.yml`: `E2E_EMAIL`, `E2E_PASSWORD` secrets 추가
+- `dotenv` dev dependency 추가 (`.env.local` 로드)
+
+## v0.11.0 (2026-04-11)
+
+### Feat: Playwright E2E 테스트 인프라 + GitHub Actions CI
+
+- Playwright 설치 (Chromium, Firefox, WebKit + mobile viewport)
+- `playwright.config.ts`: 5개 프로젝트 (desktop 3 + mobile 2), dev 서버 자동 기동
+- `e2e/smoke.spec.ts`: 주요 페이지 로딩 + 404 검증
+- `e2e/navigation.spec.ts`: 헤더 네비게이션 + 페이지 이동
+- `e2e/theme.spec.ts`: 다크/라이트 모드 토글
+- `e2e/responsive.spec.ts`: mobile/tablet/desktop 수평 overflow 검증
+- `e2e/seo.spec.ts`: 메타데이터 + 접근성 기본 검증 (alt, lang, viewport)
+- `package.json`: `test:e2e`, `test:e2e:ui`, `test:e2e:chromium` 스크립트 추가
+- `.gitignore`: Playwright 산출물 제외
+- `.github/workflows/e2e.yml`: push(`main`/`test`)/PR(`main`) 시 크로스 브라우저 E2E 자동 실행 — Chromium/Firefox/WebKit 병렬 매트릭스, Vitest + Playwright 순차 실행, 실패 시 playwright-report artifact 7일 보존
+
+### Chore: 불필요한 구조 검증 테스트 정리 (142→79개)
+
+- `color-schemes.test.ts` 삭제 (TypeScript 타입이 이미 보장하는 구조 검증)
+- `mermaid-themes.test.ts` 축소 (fallback 동작 테스트만 유지)
+- `tailwind-colors.test.ts` 축소 (경계값 + edge case만 유지)
+- `tiptap-utils.test.ts` 축소 (보안 관련 + 대표 케이스만 유지)
+
 ## v0.10.28 (2026-04-11)
 
 ### Feat: PDF export 페이지 분할 개선 — block-aware pagination
