@@ -99,6 +99,7 @@ interface Props {
 }
 
 const ALL_CATEGORY = "all";
+const POSTS_PER_PAGE = 12;
 
 function readFiltersFromSearch(
     search: string,
@@ -165,6 +166,7 @@ export default function BlogPage({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
     const hasSyncedFromUrl = useRef(false);
 
     // localStorage에서 view mode 복원
@@ -242,6 +244,17 @@ export default function BlogPage({
         if (!q) return filteredPosts;
         return filteredPosts.filter((p) => p.title.toLowerCase().includes(q));
     }, [filteredPosts, searchQuery]);
+
+    // 필터/검색 변경 시 page 1 리셋
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCategory, selectedTag, searchQuery]);
+
+    const totalPages = Math.ceil(searchedPosts.length / POSTS_PER_PAGE);
+    const paginatedPosts = useMemo(() => {
+        const start = (currentPage - 1) * POSTS_PER_PAGE;
+        return searchedPosts.slice(start, start + POSTS_PER_PAGE);
+    }, [searchedPosts, currentPage]);
 
     return (
         <div className="tablet:flex-row flex flex-col gap-8">
@@ -435,14 +448,14 @@ export default function BlogPage({
                         )}
                     </div>
                 </div>
-                {searchedPosts.length === 0 ? (
+                {paginatedPosts.length === 0 ? (
                     <p className="text-(--color-muted)">
                         No posts match the current filters.
                     </p>
                 ) : viewMode === "block" ? (
                     // Block view: grid 카드
                     <div className="tablet:grid-cols-2 laptop:grid-cols-3 grid grid-cols-1 gap-6">
-                        {searchedPosts.map((post) => (
+                        {paginatedPosts.map((post) => (
                             <a
                                 key={post.slug}
                                 href={`/blog/${post.slug}`}
@@ -492,7 +505,7 @@ export default function BlogPage({
                 ) : (
                     // List view: 기존
                     <ul className="space-y-4">
-                        {searchedPosts.map((post) => (
+                        {paginatedPosts.map((post) => (
                             <li key={post.slug}>
                                 <a
                                     href={`/blog/${post.slug}`}
@@ -576,6 +589,53 @@ export default function BlogPage({
                             </li>
                         ))}
                     </ul>
+                )}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <nav
+                        className="mt-10 flex items-center justify-center gap-1"
+                        aria-label="Pagination"
+                    >
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setCurrentPage((p) => Math.max(1, p - 1))
+                            }
+                            disabled={currentPage === 1}
+                            className="rounded-lg px-3 py-2 text-sm font-medium text-(--color-muted) transition-colors hover:text-(--color-foreground) disabled:opacity-30"
+                        >
+                            &lt;
+                        </button>
+                        {Array.from(
+                            { length: totalPages },
+                            (_, i) => i + 1
+                        ).map((page) => (
+                            <button
+                                key={page}
+                                type="button"
+                                onClick={() => setCurrentPage(page)}
+                                className={`min-w-[2.25rem] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                                    currentPage === page
+                                        ? "bg-(--color-accent) text-(--color-on-accent)"
+                                        : "text-(--color-muted) hover:text-(--color-foreground)"
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setCurrentPage((p) =>
+                                    Math.min(totalPages, p + 1)
+                                )
+                            }
+                            disabled={currentPage === totalPages}
+                            className="rounded-lg px-3 py-2 text-sm font-medium text-(--color-muted) transition-colors hover:text-(--color-foreground) disabled:opacity-30"
+                        >
+                            &gt;
+                        </button>
+                    </nav>
                 )}
             </div>
         </div>

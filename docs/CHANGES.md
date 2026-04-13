@@ -1,5 +1,11 @@
 # CHANGES
 
+## v0.11.10 (2026-04-14)
+
+### Feat: Blog pagination
+
+- `src/components/BlogPage.tsx`: pagination 추가 — 12 posts/page (3×4 block mode), 필터/검색 변경 시 page 1 리셋, `< 1 2 3 ... >` 네비게이션 UI
+
 ## v0.11.9 (2026-04-14)
 
 ### Feat: Blog 페이지 검색 input
