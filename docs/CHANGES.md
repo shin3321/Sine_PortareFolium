@@ -1,5 +1,11 @@
 # CHANGES
 
+## v0.11.12 (2026-04-14)
+
+### Test: Blog view toggle + search + pagination E2E 검증
+
+- `e2e/blog-views.spec.ts`: 신규 — 6개 테스트 (toggle 버튼 존재, block/list 전환, search input, 검색 필터링, pagination 조건부 표시)
+
 ## v0.11.11 (2026-04-14)
 
 ### Feat: Header global search — posts + portfolio title 검색
