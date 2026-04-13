@@ -116,6 +116,37 @@ function readFiltersFromSearch(
     return { category, tag: tagValue };
 }
 
+type ViewMode = "list" | "block";
+
+// List/Grid toggle 아이콘
+function ListIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+            />
+        </svg>
+    );
+}
+function GridIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </svg>
+    );
+}
+
 export default function BlogPage({
     posts,
     categories,
@@ -132,7 +163,19 @@ export default function BlogPage({
         useState<string>(ALL_CATEGORY);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>("list");
     const hasSyncedFromUrl = useRef(false);
+
+    // localStorage에서 view mode 복원
+    useEffect(() => {
+        const saved = localStorage.getItem("blog_view_mode");
+        if (saved === "list" || saved === "block") setViewMode(saved);
+    }, []);
+
+    const handleViewModeChange = useCallback((mode: ViewMode) => {
+        setViewMode(mode);
+        localStorage.setItem("blog_view_mode", mode);
+    }, []);
 
     useEffect(() => {
         const { category, tag } = readFiltersFromSearch(
@@ -194,8 +237,8 @@ export default function BlogPage({
 
     return (
         <div className="tablet:flex-row flex flex-col gap-8">
-            {/* Hamburger + title + Write post: mobile top row */}
-            <div className="tablet:hidden flex flex-wrap items-center gap-4">
+            {/* Hamburger + title + view toggle: mobile top row */}
+            <div className="tablet:hidden flex flex-wrap items-center gap-3">
                 <button
                     type="button"
                     onClick={() => setSidebarOpen((o) => !o)}
@@ -219,6 +262,24 @@ export default function BlogPage({
                 <h1 className="flex-1 text-2xl font-black tracking-tight text-(--color-foreground)">
                     Blog
                 </h1>
+                <div className="flex items-center gap-1">
+                    <button
+                        type="button"
+                        onClick={() => handleViewModeChange("list")}
+                        aria-label="List view"
+                        className={`rounded-lg p-2 transition-colors ${viewMode === "list" ? "bg-(--color-accent) text-(--color-on-accent)" : "text-(--color-muted) hover:text-(--color-foreground)"}`}
+                    >
+                        <ListIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleViewModeChange("block")}
+                        aria-label="Block view"
+                        className={`rounded-lg p-2 transition-colors ${viewMode === "block" ? "bg-(--color-accent) text-(--color-on-accent)" : "text-(--color-muted) hover:text-(--color-foreground)"}`}
+                    >
+                        <GridIcon className="h-4 w-4" />
+                    </button>
+                </div>
                 {showWritePost && (
                     <a
                         href="/keystatic"
@@ -312,28 +373,99 @@ export default function BlogPage({
                 )}
             </aside>
 
-            {/* Main: post list */}
+            {/* Main: post list / block grid */}
             <div className="min-w-0 flex-1">
                 <div className="tablet:flex tablet:items-end tablet:justify-between tablet:gap-4 mb-8 hidden">
                     <h1 className="text-3xl font-black tracking-tight text-(--color-foreground)">
                         Blog
                     </h1>
-                    {showWritePost && (
-                        <a
-                            href="/admin"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="shrink-0 rounded-xl bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) transition-opacity hover:opacity-90"
-                        >
-                            Write post
-                        </a>
-                    )}
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                onClick={() => handleViewModeChange("list")}
+                                aria-label="List view"
+                                className={`rounded-lg p-2 transition-colors ${viewMode === "list" ? "bg-(--color-accent) text-(--color-on-accent)" : "text-(--color-muted) hover:text-(--color-foreground)"}`}
+                            >
+                                <ListIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleViewModeChange("block")}
+                                aria-label="Block view"
+                                className={`rounded-lg p-2 transition-colors ${viewMode === "block" ? "bg-(--color-accent) text-(--color-on-accent)" : "text-(--color-muted) hover:text-(--color-foreground)"}`}
+                            >
+                                <GridIcon className="h-4 w-4" />
+                            </button>
+                        </div>
+                        {showWritePost && (
+                            <a
+                                href="/admin"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0 rounded-xl bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) transition-opacity hover:opacity-90"
+                            >
+                                Write post
+                            </a>
+                        )}
+                    </div>
                 </div>
                 {filteredPosts.length === 0 ? (
                     <p className="text-(--color-muted)">
                         No posts match the current filters.
                     </p>
+                ) : viewMode === "block" ? (
+                    // Block view: grid 카드
+                    <div className="tablet:grid-cols-2 laptop:grid-cols-3 grid grid-cols-1 gap-6">
+                        {filteredPosts.map((post) => (
+                            <a
+                                key={post.slug}
+                                href={`/blog/${post.slug}`}
+                                className="card-lift group flex flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface-subtle)"
+                            >
+                                {/* Thumbnail */}
+                                <div className="aspect-video w-full overflow-hidden bg-(--color-surface)">
+                                    {post.thumbnailUrl ? (
+                                        <img
+                                            src={post.thumbnailUrl}
+                                            alt=""
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-(--color-accent)/20 to-(--color-accent)/5">
+                                            <span className="text-4xl font-black text-(--color-accent)/30">
+                                                {post.title.charAt(0)}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                {/* Content */}
+                                <div className="flex flex-1 flex-col p-5">
+                                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                                        <time
+                                            className="text-xs text-(--color-muted)"
+                                            dateTime={post.pubDateIso}
+                                        >
+                                            {post.pubDateFormatted}
+                                        </time>
+                                        {post.category && (
+                                            <span className="rounded-md bg-(--color-accent) px-2 py-0.5 text-[10px] font-bold tracking-wider text-(--color-on-accent) uppercase">
+                                                {post.category}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h2 className="mb-2 text-lg leading-snug font-bold text-(--color-foreground) transition-colors group-hover:text-(--color-accent)">
+                                        {post.title}
+                                    </h2>
+                                    <p className="line-clamp-3 text-sm text-(--color-muted)">
+                                        {post.displayDescription}
+                                    </p>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
                 ) : (
+                    // List view: 기존
                     <ul className="space-y-4">
                         {filteredPosts.map((post) => (
                             <li key={post.slug}>

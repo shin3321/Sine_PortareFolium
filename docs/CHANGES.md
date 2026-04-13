@@ -1,5 +1,12 @@
 # CHANGES
 
+## v0.11.8 (2026-04-14)
+
+### Feat: Blog block view + list/block toggle
+
+- `src/components/BlogPage.tsx`: block view grid 카드 추가 (Rust devlog 레퍼런스) — 3열 반응형 grid, 대형 thumbnail, 날짜+카테고리 badge, title, description (line-clamp-3)
+- `src/components/BlogPage.tsx`: list/block view toggle 버튼 추가 (desktop + mobile) — localStorage로 선호 모드 저장
+
 ## v0.11.7 (2026-04-14)
 
 ### Feat: krrpinfo CSS 구현 이전 + scroll-reveal 제거
