@@ -1,5 +1,13 @@
 # CHANGES
 
+## v0.11.4 (2026-04-13)
+
+### Feat: 서버 시작 시 DB 마이그레이션 자동 실행
+
+- `src/instrumentation.ts`: Next.js instrumentation hook — 서버 시작 시 `autoMigrate` 호출
+- `src/lib/auto-migrate.ts`: pending 마이그레이션 자동 감지 및 순차 실행 (기존 `run-migrations` API 로직 재사용)
+- Admin 마이그레이션 패널은 수동 fallback으로 유지
+
 ## v0.11.3 (2026-04-12)
 
 ### Docs: SEO 설정 가이드 추가
