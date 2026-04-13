@@ -1,5 +1,13 @@
 # CHANGES
 
+## v0.11.5 (2026-04-13)
+
+### Feat: React Compiler 활성화
+
+- `next.config.ts`: `reactCompiler: true` 추가
+- `babel-plugin-react-compiler` devDependency 설치
+- `useMemo`/`useCallback`/`React.memo` 자동 최적화 활성화
+
 ## v0.11.4 (2026-04-13)
 
 ### Feat: 서버 시작 시 DB 마이그레이션 자동 실행
