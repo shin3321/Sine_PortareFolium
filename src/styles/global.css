@@ -1,12 +1,23 @@
 /* @import는 파일 최상단에 배치 (CSS 규칙) */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+@import url("./fonts/pretendardvariable-dynamic-subset.css") layer(base);
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "./tailwind-color-schemes.css";
 
+/* Exclusive-range breakpoints (krrpinfo 이전) */
+@custom-media --mobile-only (width < 48rem);
+@custom-media --tablet-only (48rem <= width < 77.5625rem);
+@custom-media --laptop-only (77.5625rem <= width < 100rem);
+@custom-media --not-desktop (width < 100rem);
+
 /* 스무스 스크롤 */
 html {
     scroll-behavior: smooth;
+}
+
+/* Focus style 완전 제거 utility */
+@utility no-focus {
+    @apply shadow-none! ring-0! ring-offset-0! outline-hidden! focus:shadow-none! focus:ring-0! focus:ring-offset-0!;
 }
 
 @plugin "@tailwindcss/typography";
@@ -41,6 +52,10 @@ body {
     --breakpoint-tablet: 48rem; /* 768px */
     --breakpoint-laptop: 77.5625rem; /* 1241px */
     --breakpoint-desktop: 100rem; /* 1600px */
+
+    /* Accordion animation (Radix UI) */
+    --animate-accordion-down: accordion-down 0.2s ease-out;
+    --animate-accordion-up: accordion-up 0.2s ease-out;
 
     /* prose 시맨틱 변수 */
     --color-prose-heading: var(--color-accent);
@@ -232,6 +247,21 @@ html.dark .prose :where(td) {
     font-style: var(--shiki-dark-font-style, inherit);
     font-weight: var(--shiki-dark-font-weight, inherit);
     text-decoration: var(--shiki-dark-text-decoration, none);
+}
+/* Shiki line numbering (CSS counter) */
+.prose pre.shiki code {
+    counter-reset: line;
+}
+.prose pre.shiki code > .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 1.5rem;
+    margin-right: 1rem;
+    text-align: right;
+    color: oklch(0.5 0 0 / 0.4);
+    font-size: 0.8em;
+    user-select: none;
 }
 /* Shiki 미적용 코드 블록 폴백 */
 .prose pre:not(.shiki) {
@@ -493,7 +523,25 @@ html.dark .prose :where(td) {
 
 /* ── 디자인 시스템: 애니메이션 & 전역 유틸리티 ────────────────────── */
 
-/* 스크롤 reveal 키프레임 */
+/* Accordion expand/collapse (Radix UI) */
+@keyframes accordion-down {
+    from {
+        height: 0;
+    }
+    to {
+        height: var(--radix-accordion-content-height);
+    }
+}
+@keyframes accordion-up {
+    from {
+        height: var(--radix-accordion-content-height);
+    }
+    to {
+        height: 0;
+    }
+}
+
+/* 페이지 진입 키프레임 */
 @keyframes fade-in-up {
     from {
         opacity: 0;
@@ -583,51 +631,6 @@ html.dark .prose :where(td) {
 }
 .dark .card-lift:hover {
     box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.35);
-}
-
-/* ── Delight: scroll reveal ─────────────────────────────────────── */
-@media (prefers-reduced-motion: no-preference) {
-    [data-scroll-ready] .scroll-reveal {
-        opacity: 0;
-        transform: translateY(1.2rem);
-        transition:
-            opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-            transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .scroll-reveal.revealed {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    /* 리스트 아이템 순차 등장 */
-    .scroll-reveal.revealed .stagger-child:nth-child(1) {
-        transition-delay: 0s;
-    }
-    .scroll-reveal.revealed .stagger-child:nth-child(2) {
-        transition-delay: 0.07s;
-    }
-    .scroll-reveal.revealed .stagger-child:nth-child(3) {
-        transition-delay: 0.14s;
-    }
-    .scroll-reveal.revealed .stagger-child:nth-child(4) {
-        transition-delay: 0.21s;
-    }
-    .scroll-reveal.revealed .stagger-child:nth-child(5) {
-        transition-delay: 0.28s;
-    }
-    .scroll-reveal.revealed .stagger-child:nth-child(6) {
-        transition-delay: 0.35s;
-    }
-    [data-scroll-ready] .scroll-reveal .stagger-child {
-        opacity: 0;
-        transform: translateY(0.75rem);
-        transition:
-            opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .scroll-reveal.revealed .stagger-child {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* ── Delight: 이미지 hover zoom ──────────────────────────────────── */

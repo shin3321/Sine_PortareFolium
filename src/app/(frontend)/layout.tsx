@@ -2,7 +2,6 @@ import { getSiteConfig } from "@/lib/queries";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContentWrapper from "@/components/ContentWrapper";
-import ScrollRevealInit from "@/components/ScrollRevealInit";
 
 export default async function FrontendLayout({
     children,
@@ -46,7 +45,6 @@ export default async function FrontendLayout({
                 {children}
             </ContentWrapper>
             <Footer siteName={siteName} githubUrl={githubUrl} />
-            <ScrollRevealInit />
         </div>
     );
 }

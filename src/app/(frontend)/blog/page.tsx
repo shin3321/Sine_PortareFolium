@@ -96,7 +96,7 @@ export default async function BlogListPage() {
     }
 
     return (
-        <article className="scroll-reveal">
+        <article>
             {postItems.length === 0 ? (
                 <>
                     <h1 className="mb-6 text-3xl font-bold text-(--color-foreground)">

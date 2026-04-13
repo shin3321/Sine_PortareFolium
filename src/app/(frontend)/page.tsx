@@ -227,7 +227,7 @@ export default async function HomePage() {
 
             {/* Portfolio Featured */}
             {featuredItems.length > 0 && (
-                <section className="scroll-reveal border-t border-(--color-border) py-14">
+                <section className="border-t border-(--color-border) py-14">
                     <div className="mb-8 flex items-end justify-between">
                         <div>
                             <p className="mb-1 text-xs font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
@@ -360,7 +360,7 @@ export default async function HomePage() {
             )}
 
             {/* 핵심 역량 */}
-            <section className="scroll-reveal border-t border-(--color-border) py-16">
+            <section className="border-t border-(--color-border) py-16">
                 <div className="mb-10">
                     <p className="mb-1 text-sm font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
                         Technical Strengths
@@ -393,7 +393,7 @@ export default async function HomePage() {
 
             {/* Work Experience */}
             {workItems.length > 0 && (
-                <section className="scroll-reveal border-t border-(--color-border) py-14">
+                <section className="border-t border-(--color-border) py-14">
                     <div className="mb-8 flex items-end justify-between">
                         <div>
                             <p className="mb-1 text-xs font-semibold tracking-[0.2em] text-(--color-accent) uppercase">
@@ -465,7 +465,7 @@ export default async function HomePage() {
 
             {/* Blog 최신 글 */}
             {latestPosts.length > 0 && (
-                <section className="scroll-reveal border-t border-(--color-border) py-14">
+                <section className="border-t border-(--color-border) py-14">
                     <div className="mb-8 flex items-end justify-between">
                         <div>
                             <p className="mb-1 text-xs font-semibold tracking-[0.2em] text-(--color-accent) uppercase">

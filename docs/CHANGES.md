@@ -1,5 +1,19 @@
 # CHANGES
 
+## v0.11.7 (2026-04-14)
+
+### Feat: krrpinfo CSS 구현 이전 + scroll-reveal 제거
+
+- `src/styles/global.css`: exclusive-range breakpoints 추가 (`--mobile-only`, `--tablet-only`, `--laptop-only`, `--not-desktop`)
+- `src/styles/global.css`: `no-focus` utility 추가 (focus ring 완전 제거)
+- `src/styles/global.css`: accordion animation keyframes 추가 (Radix UI expand/collapse)
+- `src/styles/global.css`: Shiki code block line numbering CSS 추가 (CSS counter 기반)
+- `src/styles/global.css`: scroll-reveal CSS 전체 제거
+- `src/styles/fonts/`: Pretendard Variable 로컬 dynamic subset (CDN → 로컬 woff2)
+- `src/components/ScrollRevealInit.tsx`: 삭제
+- `src/app/(frontend)/layout.tsx`: ScrollRevealInit import 제거
+- `src/app/(frontend)/page.tsx`, `blog/page.tsx`, `portfolio/page.tsx`, `src/components/AboutView.tsx`: `scroll-reveal` 클래스 제거
+
 ## v0.11.6 (2026-04-13)
 
 ### Feat: frontend footer 추가
