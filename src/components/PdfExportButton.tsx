@@ -15,11 +15,11 @@ export default function PdfExportButton({ children, fileName }: Props) {
     const [open, setOpen] = useState(false);
     const [authed, setAuthed] = useState(false);
 
-    // 인증 상태 확인
+    // 인증 상태 확인 (getSession: network 호출 없이 local session 확인)
     useEffect(() => {
         if (!browserClient) return;
-        browserClient.auth.getUser().then(({ data }) => {
-            if (data.user) setAuthed(true);
+        browserClient.auth.getSession().then(({ data: { session } }) => {
+            if (session) setAuthed(true);
         });
         const { data: listener } = browserClient.auth.onAuthStateChange(
             (_event, session) => setAuthed(!!session?.user)

@@ -23,9 +23,10 @@ export default function UserMenu() {
         setMounted(true);
         if (!browserClient) return;
 
-        browserClient.auth.getUser().then(({ data }) => {
-            if (data.user) {
-                setUser({ id: data.user.id });
+        // getSession은 network 호출 없이 local session 확인
+        browserClient.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                setUser({ id: session.user.id });
                 loadProfileImage();
             }
         });
@@ -44,9 +45,14 @@ export default function UserMenu() {
         return () => listener.subscription.unsubscribe();
     }, []);
 
-    // resume_data에서 프로필 이미지 fetch
+    // resume_data에서 프로필 이미지 fetch (sessionStorage cache)
     const loadProfileImage = async () => {
         if (!browserClient) return;
+        const cached = sessionStorage.getItem("profile_image_url");
+        if (cached) {
+            setProfileImg(cached);
+            return;
+        }
         const { data } = await browserClient
             .from("resume_data")
             .select("data")
@@ -55,7 +61,10 @@ export default function UserMenu() {
         const img = (data?.data as Record<string, unknown>)?.basics as
             | { image?: string }
             | undefined;
-        if (img?.image) setProfileImg(img.image);
+        if (img?.image) {
+            setProfileImg(img.image);
+            sessionStorage.setItem("profile_image_url", img.image);
+        }
     };
 
     // 외부 클릭 시 닫기

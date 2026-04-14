@@ -148,17 +148,13 @@ function GridIcon({ className }: { className?: string }) {
 }
 
 export default function BlogPage({ posts, categories, tags }: Props) {
-    // 로그인 상태 확인 → 관리 버튼 표시 (auth 완료까지 렌더 지연)
-    const [authChecked, setAuthChecked] = useState(false);
+    // 로그인 상태 확인 → 관리 버튼 표시 (렌더 비차단)
     const [showManagePost, setShowManagePost] = useState(false);
     useEffect(() => {
-        if (!browserClient) {
-            setAuthChecked(true);
-            return;
-        }
-        browserClient.auth.getUser().then(({ data }) => {
-            if (data.user) setShowManagePost(true);
-            setAuthChecked(true);
+        if (!browserClient) return;
+        // getSession은 network 호출 없이 local session 확인
+        browserClient.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) setShowManagePost(true);
         });
     }, []);
 
@@ -263,32 +259,6 @@ export default function BlogPage({ posts, categories, tags }: Props) {
         const start = (currentPage - 1) * POSTS_PER_PAGE;
         return searchedPosts.slice(start, start + POSTS_PER_PAGE);
     }, [searchedPosts, currentPage]);
-
-    if (!authChecked) {
-        return (
-            <div className="flex min-h-[40vh] items-center justify-center">
-                <svg
-                    className="h-6 w-6 animate-spin text-(--color-muted)"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                >
-                    <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                    />
-                    <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                </svg>
-            </div>
-        );
-    }
 
     return (
         <div className="tablet:flex-row flex w-full flex-col gap-8">

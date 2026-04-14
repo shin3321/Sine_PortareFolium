@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { serverClient } from "@/lib/supabase";
-import {
-    getFirstImageFromContent,
-    getFirstThreeSentences,
-    formatPubDateKST,
-} from "@/lib/blog";
+import { formatPubDateKST } from "@/lib/blog";
 import type { PostItem, FilterMeta } from "@/components/BlogPage";
 import BlogPage from "@/components/BlogPage";
 
@@ -40,19 +36,16 @@ export default async function BlogListPage() {
         const { data: posts } = await serverClient
             .from("posts")
             .select(
-                "slug, title, description, pub_date, category, tags, thumbnail, content"
+                "slug, title, description, pub_date, category, tags, thumbnail"
             )
             .eq("published", true)
             .order("pub_date", { ascending: false });
 
         if (posts) {
             postItems = posts.map((post) => {
-                const body: string = post.content ?? "";
-                const firstImage = getFirstImageFromContent(body);
                 const thumbRaw: string | null = post.thumbnail ?? null;
-                const thumbnailUrl = thumbRaw || firstImage || null;
-                const displayDescription =
-                    post.description?.trim() ?? getFirstThreeSentences(body);
+                const thumbnailUrl = thumbRaw || null;
+                const displayDescription = post.description?.trim() || "";
                 const pubDate = new Date(post.pub_date);
                 const tagList: string[] = post.tags ?? [];
                 return {

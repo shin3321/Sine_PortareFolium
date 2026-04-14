@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { serverClient } from "@/lib/supabase";
-import {
-    getFirstImageFromContent,
-    getFirstThreeSentences,
-    formatPubDateKST,
-} from "@/lib/blog";
+import { formatPubDateKST } from "@/lib/blog";
 import type { Metadata } from "next";
 import LandingHero from "@/components/LandingHeroSwitcher";
 
@@ -173,9 +169,7 @@ export default async function HomePage() {
     if (serverClient) {
         const { data } = await serverClient
             .from("posts")
-            .select(
-                "slug, title, description, pub_date, category, thumbnail, content"
-            )
+            .select("slug, title, description, pub_date, category, thumbnail")
             .eq("published", true)
             .order("pub_date", { ascending: false })
             .limit(BLOG_POST_MAX_NUM);
@@ -188,24 +182,15 @@ export default async function HomePage() {
                     pub_date: string;
                     category: string | null;
                     thumbnail: string | null;
-                    content: string | null;
-                }) => {
-                    const body: string = p.content ?? "";
-                    const firstImage = getFirstImageFromContent(body);
-                    return {
-                        slug: p.slug,
-                        title: p.title,
-                        displayDescription:
-                            p.description?.trim() ??
-                            getFirstThreeSentences(body),
-                        pubDateFormatted: formatPubDateKST(
-                            new Date(p.pub_date)
-                        ),
-                        pubDateIso: new Date(p.pub_date).toISOString(),
-                        category: p.category?.trim() ?? null,
-                        thumbnailUrl: p.thumbnail || firstImage || null,
-                    };
-                }
+                }) => ({
+                    slug: p.slug,
+                    title: p.title,
+                    displayDescription: p.description?.trim() || "",
+                    pubDateFormatted: formatPubDateKST(new Date(p.pub_date)),
+                    pubDateIso: new Date(p.pub_date).toISOString(),
+                    category: p.category?.trim() ?? null,
+                    thumbnailUrl: p.thumbnail || null,
+                })
             );
         }
     }

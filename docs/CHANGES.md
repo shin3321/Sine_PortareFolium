@@ -1,5 +1,16 @@
 # CHANGES
 
+## v0.11.25 (2026-04-14)
+
+### perf: Supabase egress 절감 — auth.getUser→getSession, content 컬럼 제거, 프로필 이미지 cache
+
+- `src/components/UserMenu.tsx`: `auth.getUser()` → `auth.getSession()` (network 호출 제거), 프로필 이미지 `sessionStorage` cache 추가
+- `src/components/BlogPage.tsx`: `auth.getUser()` → `auth.getSession()`, auth 대기 중 렌더 차단(spinner) 제거
+- `src/components/PdfExportButton.tsx`: `auth.getUser()` → `auth.getSession()` (network 호출 제거)
+- `src/app/(frontend)/blog/page.tsx`: 목록 쿼리에서 `content` 컬럼 제거 — fallback thumbnail/description 불필요
+- `src/app/(frontend)/page.tsx`: 홈 최신글 쿼리에서 `content` 컬럼 제거
+- **효과**: 모든 방문자의 auth API 호출 제거, blog/home revalidation payload 대폭 감소
+
 ## v0.11.24 (2026-04-14)
 
 ### perf: AboutView SSR 전환 — browserClient fetch 제거
