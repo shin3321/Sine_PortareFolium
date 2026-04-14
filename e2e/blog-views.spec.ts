@@ -5,44 +5,37 @@ import { test, expect } from "@playwright/test";
 test.describe("Blog view toggle", () => {
     test("toggle 버튼 존재 확인", async ({ page }) => {
         await page.goto("/blog");
-        // DOM에 list/block toggle 버튼 존재 (mobile hidden이라도 attached)
-        const listBtnCount = await page
-            .locator('button[aria-label="List view"]')
-            .count();
-        const blockBtnCount = await page
-            .locator('button[aria-label="Block view"]')
-            .count();
-        expect(listBtnCount).toBeGreaterThan(0);
-        expect(blockBtnCount).toBeGreaterThan(0);
+        // auth 확인 후 렌더링되므로 대기 필요
+        const listBtn = page.locator('button[aria-label="List view"]');
+        const blockBtn = page.locator('button[aria-label="Block view"]');
+        await expect(listBtn.first()).toBeAttached({ timeout: 10000 });
+        await expect(blockBtn.first()).toBeAttached({ timeout: 10000 });
     });
 
     test("block 모드 전환 시 grid 레이아웃 표시", async ({ page }) => {
         await page.goto("/blog");
-        // visible block 버튼 클릭
+        // auth 확인 후 렌더링 대기
         const blockBtn = page.locator(
             'button[aria-label="Block view"]:visible'
         );
-        if ((await blockBtn.count()) > 0) {
-            await blockBtn.first().click();
-            // block view: aspect-video thumbnail 카드 존재
-            const card = page.locator(".aspect-video").first();
-            await expect(card).toBeVisible();
-        }
+        await expect(blockBtn.first()).toBeVisible({ timeout: 10000 });
+        await blockBtn.first().click();
+        const card = page.locator(".aspect-video").first();
+        await expect(card).toBeVisible();
     });
 
     test("list 모드 전환 시 list 레이아웃 표시", async ({ page }) => {
         await page.goto("/blog");
+        // auth 확인 후 렌더링 대기
         const blockBtn = page.locator(
             'button[aria-label="Block view"]:visible'
         );
         const listBtn = page.locator('button[aria-label="List view"]:visible');
-        if ((await blockBtn.count()) > 0 && (await listBtn.count()) > 0) {
-            await blockBtn.first().click();
-            await listBtn.first().click();
-            // list view: ul space-y-4 존재
-            const list = page.locator("ul").first();
-            await expect(list).toBeVisible();
-        }
+        await expect(blockBtn.first()).toBeVisible({ timeout: 10000 });
+        await blockBtn.first().click();
+        await listBtn.first().click();
+        const list = page.locator("ul").first();
+        await expect(list).toBeVisible();
     });
 });
 
